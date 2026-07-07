@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互動式數位學習網</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'PingFang TC', 'Heiti TC', '微軟正黑體', sans-serif;
+            background-color: #f3f4f6;
+        }
+        /* 增加按鈕點擊時的微小動畫，提升互動感 */
+        .learning-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .learning-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        
+        <!-- 網站標題區塊 -->
+        <header class="text-center mb-10 mt-4">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">多元互動學習資源網</h1>
+            <p class="text-gray-600 text-lg">選擇一個科目，點擊按鈕開始今天的學習任務！</p>
+        </header>
+
+        <!-- 語文學習區塊 -->
+        <section class="mb-12 bg-white rounded-2xl shadow-sm p-6 md:p-8 border-t-4 border-blue-500">
+            <div class="flex items-center mb-6">
+                <span class="text-3xl mr-3">📖</span>
+                <h2 class="text-2xl font-bold text-gray-800">語文學習</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                
+                <a href="https://share.gemini.google/VPbAyErdhn1C" target="_blank" class="learning-card block bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl p-5 text-center decoration-transparent">
+                    <div class="text-blue-700 font-bold text-lg mb-1">中文語文</div>
+                    <div class="text-blue-900 font-medium">挖空填詞測驗</div>
+                </a>
+
+                <a href="https://share.gemini.google/yMHGWqT2UNR3" target="_blank" class="learning-card block bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl p-5 text-center decoration-transparent">
+                    <div class="text-blue-700 font-bold text-lg mb-1">英語自學</div>
+                    <div class="text-blue-900 font-medium">特教英語探索森林</div>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- 健康與生活自理區塊 -->
+        <section class="mb-12 bg-white rounded-2xl shadow-sm p-6 md:p-8 border-t-4 border-green-500">
+            <div class="flex items-center mb-6">
+                <span class="text-3xl mr-3">🌱</span>
+                <h2 class="text-2xl font-bold text-gray-800">健康與生活自理</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                
+                <a href="https://share.gemini.google/O72JTpfYeNUS" target="_blank" class="learning-card block bg-green-50 hover:bg-green-100 border border-green-200 rounded-xl p-5 text-center decoration-transparent">
+                    <div class="text-green-700 font-bold text-lg mb-1">生活常規</div>
+                    <div class="text-green-900 font-medium">生活好習慣互動組句</div>
+                </a>
+
+                <a href="https://share.gemini.google/wp8EG4gTkDrA" target="_blank" class="learning-card block bg-green-50 hover:bg-green-100 border border-green-200 rounded-xl p-5 text-center decoration-transparent">
+                    <div class="text-green-700 font-bold text-lg mb-1">校園健康</div>
+                    <div class="text-green-900 font-medium">在學校的健康好習慣(閱讀)</div>
+                </a>
+
+                <a href="https://gemini.google.com/share/26be7f6efb0c" target="_blank" class="learning-card block bg-green-50 hover:bg-green-100 border border-green-200 rounded-xl p-5 text-center decoration-transparent">
+                    <div class="text-green-700 font-bold text-lg mb-1">生活技能</div>
+                    <div class="text-green-900 font-medium">互動式就醫流程排序</div>
+                </a>
+
+                <a href="https://gemini.google.com/share/31733560cd0a" target="_blank" class="learning-card block bg-green-50 hover:bg-green-100 border border-green-200 rounded-xl p-5 text-center decoration-transparent">
+                    <div class="text-green-700 font-bold text-lg mb-1">安全衛生</div>
+                    <div class="text-green-900 font-medium">糖果或藥物 互動遊戲</div>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- 社會與法治區塊 -->
+        <section class="mb-12 bg-white rounded-2xl shadow-sm p-6 md:p-8 border-t-4 border-amber-500">
+            <div class="flex items-center mb-6">
+                <span class="text-3xl mr-3">🌍</span>
+                <h2 class="text-2xl font-bold text-gray-800">社會與規範</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                
+                <a href="https://share.gemini.google/u6pxbS5ml8rh" target="_blank" class="learning-card block bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl p-5 text-center decoration-transparent">
+                    <div class="text-amber-700 font-bold text-lg mb-1">社會環境</div>
+                    <div class="text-amber-900 font-medium">認識交通號誌與標誌</div>
+                </a>
+
+                <a href="https://gemini.google.com/share/76011cf6c146" target="_blank" class="learning-card block bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl p-5 text-center decoration-transparent">
+                    <div class="text-amber-700 font-bold text-lg mb-1">公民素養</div>
+                    <div class="text-amber-900 font-medium">青春不卡關：法學大冒險</div>
+                </a>
+
+            </div>
+        </section>
+
+        <footer class="text-center text-gray-500 text-sm mt-8 pb-8">
+            <p>點擊上方卡片即可開啟互動學習內容。請確保您的網路連線正常。</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
