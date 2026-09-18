@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>我為什麼會分心？</title>
+<style>
+body{margin:0;font-family:"Microsoft JhengHei",sans-serif;background:#f7fbff;color:#18324f;line-height:1.7}
+.wrap{max-width:980px;margin:auto;padding:20px}
+.hero,section{background:#fff;border:1px solid #dfe7ef;border-radius:22px;padding:24px;margin-bottom:18px}
+.hero{background:linear-gradient(135deg,#dfeeff,#f8fbff)}
+h1{font-size:46px;margin:0;color:#0d3b73}
+h2{color:#0d477f}
+.tag{display:inline-block;background:#fff1ad;border-radius:999px;padding:6px 12px;font-weight:700}
+.quote{background:#fff;border-left:6px solid #f1c84b;padding:12px 14px;border-radius:12px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{padding:18px;border-radius:16px;text-align:center;font-weight:700;cursor:pointer;border:2px solid transparent}
+.c1{background:#dfeeff}.c2{background:#fff4c9}.c3{background:#ffe5ea}
+.card.sel{border-color:#1b6ca8}
+.sc{background:#f8fafc;border:1px solid #d7e0e9;border-radius:14px;padding:14px;margin:12px 0}
+button{border:none;border-radius:10px;padding:9px 13px;font:inherit;font-weight:700;cursor:pointer}
+.choice{background:#eaf1f7;color:#184669;margin:5px}
+.choice.active{background:#1b6ca8;color:white}
+.good{color:#24713b;font-weight:700}.try{color:#9a5a00;font-weight:700}
+.checkgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{background:#f8fbff;border:1px solid #dce6ef;border-radius:12px;padding:10px}
+textarea{width:100%;min-height:90px;border:1px solid #ccd7e2;border-radius:12px;padding:10px;font:inherit}
+.primary{background:#145f9c;color:#fff}.secondary{background:#e8f0f7;color:#184669}
+.summary{display:none;background:#edf8e9;border:1px solid #cce3c3;border-radius:14px;padding:14px;margin-top:14px}
+.progress{height:12px;background:#e6edf3;border-radius:999px;overflow:hidden;margin-top:14px}
+.bar{height:100%;width:0;background:#78a9d6;transition:.3s}
+@media(max-width:700px){.grid,.checkgrid{grid-template-columns:1fr}h1{font-size:36px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <span class="tag">社會技巧｜第6週</span>
+    <h1>我為什麼會分心？</h1>
+    <p>今天不是要逼自己完全不能分心，而是練習發現：<b>什麼偷走了我的注意力？</b></p>
+    <div class="quote">分心不是失敗。能看見它、了解它，就是自我管理的第一步。</div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+  </div>
+
+  <section>
+    <h2>① 分心從哪裡來？</h2>
+    <div class="grid">
+      <div class="card c1" data-msg="外在的事情：環境、人、聲音、物品，都可能把注意力拉走。">🌍<br>外在的事情<br><small>環境／人／物品</small></div>
+      <div class="card c2" data-msg="身體狀態：累、餓、不舒服，會讓專注變困難。">🧍<br>我的身體<br><small>疲累／飢餓／不舒服</small></div>
+      <div class="card c3" data-msg="情緒與想法：生氣、緊張、擔心，或腦中一直想別的事，也會讓注意力跑掉。">💭<br>我的情緒或想法<br><small>心情／擔心／想太多</small></div>
+    </div>
+    <p id="msg"></p>
+  </section>
+
+  <section>
+    <h2>② 小試身手</h2>
+    <div class="sc" data-answer="外在">
+      <b>情境A：</b>老師正在說明作業，走廊突然有人大聲說話，我一直轉頭看。
+      <div><button class="choice">外在</button><button class="choice">身體</button><button class="choice">情緒／想法</button></div>
+      <div class="fb"></div>
+    </div>
+    <div class="sc" data-answer="身體">
+      <b>情境B：</b>下午上課時我很累，一直打哈欠，看課本看不進去。
+      <div><button class="choice">外在</button><button class="choice">身體</button><button class="choice">情緒／想法</button></div>
+      <div class="fb"></div>
+    </div>
+    <div class="sc" data-answer="情緒／想法">
+      <b>情境C：</b>剛剛和同學有不愉快，上課時腦袋一直想到那件事。
+      <div><button class="choice">外在</button><button class="choice">身體</button><button class="choice">情緒／想法</button></div>
+      <div class="fb"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>③ 我的分心地圖</h2>
+    <p>哪些情況最容易讓你分心？可以複選。</p>
+    <div class="checkgrid">
+      <label class="opt"><input type="checkbox" value="聲音"> 🔊 聲音</label>
+      <label class="opt"><input type="checkbox" value="人"> 👥 人</label>
+      <label class="opt"><input type="checkbox" value="東西"> 📱 東西</label>
+      <label class="opt"><input type="checkbox" value="身體"> 😴 身體</label>
+      <label class="opt"><input type="checkbox" value="情緒"> 😠 情緒</label>
+      <label class="opt"><input type="checkbox" value="腦中的想法"> 💭 腦中的想法</label>
+    </div>
+    <p><b>其他：</b></p>
+    <textarea id="other"></textarea>
+  </section>
+
+  <section>
+    <h2>④ 我今天發現了什麼？</h2>
+    <p><b>我最常遇到的兩種分心是：</b></p>
+    <textarea id="top2"></textarea>
+    <p><b>今天我對自己多知道了一件事：</b></p>
+    <textarea id="learned"></textarea>
+    <p>
+      <button class="primary" onclick="finish()">完成我的小結</button>
+      <button class="secondary" onclick="resetAll()">重新開始</button>
+    </p>
+    <div class="summary" id="summary"></div>
+  </section>
+</div>
+<script>
+let answered=0;
+function progress(){
+  let p=0;
+  if(document.querySelector('.card.sel'))p+=20;
+  p+=Math.min(answered,3)*10;
+  if([...document.querySelectorAll('input[type=checkbox]')].some(x=>x.checked))p+=20;
+  if(top2.value.trim())p+=15;
+  if(learned.value.trim())p+=15;
+  bar.style.width=Math.min(p,100)+'%';
+}
+document.querySelectorAll('.card').forEach(c=>c.onclick=()=>{
+  document.querySelectorAll('.card').forEach(x=>x.classList.remove('sel'));
+  c.classList.add('sel'); msg.textContent=c.dataset.msg; progress();
+});
+document.querySelectorAll('.sc').forEach(s=>{
+  s.querySelectorAll('.choice').forEach(b=>b.onclick=()=>{
+    s.querySelectorAll('.choice').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    if(!s.dataset.done){answered++;s.dataset.done='1'}
+    const fb=s.querySelector('.fb');
+    if(b.textContent===s.dataset.answer){fb.textContent='✓ 判斷正確';fb.className='fb good'}
+    else{fb.textContent='再想一下：主要是哪一類因素把注意力拉走？';fb.className='fb try'}
+    progress();
+  })
+});
+document.querySelectorAll('input,textarea').forEach(x=>{x.oninput=progress;x.onchange=progress});
+function finish(){
+  const sel=[...document.querySelectorAll('input:checked')].map(x=>x.value);
+  summary.style.display='block';
+  summary.innerHTML='<b>我的分心小結</b><br>我容易受到：'+(sel.join('、')||'尚未選擇')+
+  (other.value.trim()?'；其他：'+other.value.trim():'')+'。<br>'+
+  '我最常遇到的兩種分心：'+(top2.value.trim()||'尚未填寫')+'。<br>'+
+  '今天我發現：'+(learned.value.trim()||'尚未填寫')+'。<br><br>'+
+  '<b>記住：</b>分心不是失敗，發現自己分心，就是把注意力帶回來的第一步。';
+  bar.style.width='100%';
+}
+function resetAll(){
+  document.querySelectorAll('.sel,.active').forEach(x=>x.classList.remove('sel','active'));
+  document.querySelectorAll('input').forEach(x=>x.checked=false);
+  document.querySelectorAll('textarea').forEach(x=>x.value='');
+  document.querySelectorAll('.fb').forEach(x=>x.textContent='');
+  document.querySelectorAll('.sc').forEach(x=>delete x.dataset.done);
+  msg.textContent='';summary.style.display='none';answered=0;bar.style.width='0';
+}
+</script>
+</body>
+</html>
