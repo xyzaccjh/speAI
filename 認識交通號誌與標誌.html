@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>認識台灣交通號誌與標誌</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0fdf4; /* Light green background */
+        }
+
+        .sign-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .sign-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Traffic Light Animation */
+        .traffic-light-demo {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            background: #333;
+            padding: 10px 15px;
+            border-radius: 50px;
+            width: fit-content;
+            margin: 0 auto;
+        }
+        
+        .light {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin: 0 6px;
+            background-color: #555;
+            transition: background-color 0.3s;
+        }
+
+        .pedestrian-light {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #333;
+            padding: 10px;
+            border-radius: 10px;
+            width: 50px;
+            margin: 0 auto;
+        }
+        
+        .p-light {
+            width: 30px;
+            height: 30px;
+            margin: 5px 0;
+            background-color: #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            font-size: 1.2rem;
+            border-radius: 5px;
+        }
+
+        .active-red { background-color: #ef4444; box-shadow: 0 0 15px #ef4444; }
+        .active-yellow { background-color: #eab308; box-shadow: 0 0 15px #eab308; }
+        .active-green { background-color: #22c55e; box-shadow: 0 0 15px #22c55e; }
+        
+        .p-active-red { background-color: #ef4444; color: white; box-shadow: 0 0 15px #ef4444; }
+        .p-active-green { background-color: #22c55e; color: white; box-shadow: 0 0 15px #22c55e; }
+
+        .svg-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+        }
+        
+        .tab-btn.active {
+            border-bottom-width: 4px;
+            border-color: #16a34a;
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        /* Quiz animations */
+        .quiz-option:hover {
+            background-color: #e2e8f0;
+        }
+        .quiz-option.correct {
+            background-color: #bbf7d0;
+            border-color: #22c55e;
+        }
+        .quiz-option.wrong {
+            background-color: #fecaca;
+            border-color: #ef4444;
+        }
+        
+        .hide { display: none !important; }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <header class="bg-green-600 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-black flex items-center gap-2">
+                <i class="fa-solid fa-traffic-light text-yellow-300"></i>
+                台灣交通號誌小學堂
+            </h1>
+            <nav class="hidden md:flex gap-4 font-bold">
+                <button onclick="switchTab('learn')" id="nav-learn" class="hover:text-yellow-200 transition">標誌圖鑑</button>
+                <button onclick="switchTab('quiz')" id="nav-quiz" class="hover:text-yellow-200 transition">隨堂測驗</button>
+            </nav>
+            <button class="md:hidden text-2xl" onclick="toggleMobileMenu()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden bg-green-700 hidden">
+            <button onclick="switchTab('learn'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 border-b border-green-600 hover:bg-green-800">標誌圖鑑</button>
+            <button onclick="switchTab('quiz'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 hover:bg-green-800">隨堂測驗</button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        
+        <section id="section-learn">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-black text-green-800 mb-4">認識交通號誌與標誌</h2>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">走在馬路上，這些標誌就像是會說話的警察，保護我們的安全！一起來認識它們代表什麼意思吧。</p>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="flex flex-wrap justify-center mb-8 border-b border-slate-300">
+                <button onclick="filterSigns('all')" class="category-tab active px-4 py-2 mx-2 text-lg font-medium text-slate-500 hover:text-green-600 transition" data-category="all">全部</button>
+                <button onclick="filterSigns('traffic-light')" class="category-tab px-4 py-2 mx-2 text-lg font-medium text-slate-500 hover:text-green-600 transition" data-category="traffic-light">紅綠燈與行人號誌</button>
+                <button onclick="filterSigns('warning')" class="category-tab px-4 py-2 mx-2 text-lg font-medium text-slate-500 hover:text-green-600 transition" data-category="warning">警告標誌 (三角形)</button>
+                <button onclick="filterSigns('prohibitory')" class="category-tab px-4 py-2 mx-2 text-lg font-medium text-slate-500 hover:text-green-600 transition" data-category="prohibitory">禁制標誌 (圓形/八角形)</button>
+            </div>
+
+            <div id="signs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Content will be injected by JavaScript -->
+            </div>
+        </section>
+
+        <section id="section-quiz" class="hide">
+            <div class="max-w-3xl mx-auto">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl md:text-4xl font-black text-green-800 mb-4">號誌隨堂考</h2>
+                    <p class="text-lg text-slate-600">測試看看你是不是交通安全小達人！</p>
+                </div>
+
+                <div id="quiz-container" class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
+                    <!-- Intro Screen -->
+                    <div id="quiz-intro" class="text-center">
+                        <i class="fa-solid fa-clipboard-question text-6xl text-blue-500 mb-4"></i>
+                        <h3 class="text-2xl font-bold mb-4">準備好了嗎？</h3>
+                        <p class="mb-6">總共有 8 題，每次測驗會從題庫中隨機出題，看看你能答對幾題！</p>
+                        <button onclick="startQuiz()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full text-lg transition shadow-md hover:shadow-lg transform hover:scale-105">開始測驗</button>
+                    </div>
+
+                    <!-- Question Screen -->
+                    <div id="quiz-question" class="hide">
+                        <div class="flex justify-between items-center mb-6">
+                            <span id="question-progress" class="text-slate-500 font-bold bg-slate-100 px-3 py-1 rounded-full text-sm">問題 1 / 8</span>
+                            <span id="score-display" class="text-green-600 font-bold text-sm">答對: 0 題</span>
+                        </div>
+                        
+                        <div class="mb-8 flex flex-col items-center justify-center min-h-[150px]">
+                            <!-- Question visual will go here -->
+                            <div id="question-visual" class="mb-4"></div>
+                            <h3 id="question-text" class="text-xl md:text-2xl font-bold text-center">這個標誌代表什麼意思？</h3>
+                        </div>
+
+                        <div id="options-container" class="grid grid-cols-1 gap-3">
+                            <!-- Options will be injected by JS -->
+                        </div>
+                        
+                        <div id="feedback-container" class="mt-6 text-center hide">
+                            <p id="feedback-text" class="text-lg font-bold mb-4"></p>
+                            <button id="next-btn" onclick="nextQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition hide">下一題</button>
+                            <button id="finish-btn" onclick="showResults()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full transition hide">看結果</button>
+                        </div>
+                    </div>
+
+                    <!-- Results Screen -->
+                    <div id="quiz-result" class="hide text-center py-8">
+                        <div id="result-icon" class="text-6xl mb-4"></div>
+                        <h3 id="result-title" class="text-3xl font-black mb-2"></h3>
+                        <p id="result-score" class="text-xl mb-6 font-bold"></p>
+                        <p id="result-message" class="text-slate-600 mb-8"></p>
+                        <div class="flex justify-center gap-4">
+                            <button onclick="startQuiz()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full transition">再測一次</button>
+                            <button onclick="switchTab('learn')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-6 rounded-full transition">複習標誌</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 py-6 text-center mt-12">
+        <p>交通安全，人人有責。遵守號誌，平安回家。</p>
+        <p class="text-sm mt-2 opacity-70">© 2026 互動式交通號誌學習網. 僅供教學展示用途。</p>
+    </footer>
+
+    <script>
+        // Data for Traffic Signs
+        const trafficSignsData = [
+            {
+                id: 'tl-1',
+                category: 'traffic-light',
+                name: '行車號誌 (紅綠燈)',
+                html: `
+                    <div class="traffic-light-demo mx-auto mb-4">
+                        <div class="light active-red"></div>
+                        <div class="light active-yellow"></div>
+                        <div class="light active-green"></div>
+                    </div>
+                `,
+                meaning: '指示車輛通行、停止或注意。',
+                importance: '維持路口交通秩序，避免車輛相撞。紅燈停，綠燈行，黃燈要注意準備停車。'
+            },
+            {
+                id: 'tl-2',
+                category: 'traffic-light',
+                name: '行人專用號誌 (小綠人)',
+                html: `
+                    <div class="pedestrian-light mx-auto mb-4">
+                        <div class="p-light p-active-red"><i class="fa-solid fa-person"></i></div>
+                        <div class="p-light p-active-green"><i class="fa-solid fa-person-walking"></i></div>
+                    </div>
+                `,
+                meaning: '指示行人何時可以穿越馬路。',
+                importance: '保護行人安全。紅燈（站立小紅人）禁止通行，綠燈（行走小綠人）才可走斑馬線。綠燈閃爍表示快變紅燈，請勿再進入路口。'
+            },
+            {
+                id: 'w-1',
+                category: 'warning',
+                name: '注意行人',
+                html: `
+                    <svg class="svg-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="50,5 95,85 5,85" fill="#facc15" stroke="#ef4444" stroke-width="8" stroke-linejoin="round"/>
+                        <path d="M45,65 L55,65 L60,45 L50,30 L40,45 Z" fill="black" />
+                        <circle cx="50" cy="22" r="5" fill="black" />
+                    </svg>
+                `,
+                meaning: '警告前方有行人穿越，車輛應減速慢行。',
+                importance: '通常設置在學校附近、公園或無號誌的斑馬線前，提醒駕駛人禮讓行人。'
+            },
+            {
+                id: 'w-2',
+                category: 'warning',
+                name: '注意號誌',
+                html: `
+                    <svg class="svg-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="50,5 95,85 5,85" fill="#facc15" stroke="#ef4444" stroke-width="8" stroke-linejoin="round"/>
+                        <rect x="42" y="25" width="16" height="40" fill="black" rx="2" />
+                        <circle cx="50" cy="32" r="5" fill="#ef4444" />
+                        <circle cx="50" cy="45" r="5" fill="#eab308" />
+                        <circle cx="50" cy="58" r="5" fill="#22c55e" />
+                    </svg>
+                `,
+                meaning: '警告前方路口設有紅綠燈號誌。',
+                importance: '提醒駕駛人前方有號誌管制，應準備依號誌指示行駛，避免闖紅燈。'
+            },
+            {
+                id: 'w-3',
+                category: 'warning',
+                name: '當心兒童',
+                html: `
+                    <svg class="svg-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="50,5 95,85 5,85" fill="#facc15" stroke="#ef4444" stroke-width="8" stroke-linejoin="round"/>
+                        <!-- Adult -->
+                        <path d="M40,65 L45,65 L50,45 L45,35 L35,45 Z" fill="black" />
+                        <circle cx="42" cy="25" r="6" fill="black" />
+                        <!-- Child -->
+                        <path d="M55,65 L60,65 L62,50 L58,45 L52,50 Z" fill="black" />
+                        <circle cx="58" cy="35" r="4" fill="black" />
+                    </svg>
+                `,
+                meaning: '警告前方可能有兒童出現，請減速。',
+                importance: '常見於小學、幼兒園或遊樂場周邊，兒童行為較不可測，駕駛需特別注意。'
+            },
+            {
+                id: 'p-1',
+                category: 'prohibitory',
+                name: '禁止進入',
+                html: `
+                    <svg class="svg-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="45" fill="#ef4444" />
+                        <rect x="20" y="42" width="60" height="16" fill="white" />
+                    </svg>
+                `,
+                meaning: '禁止任何車輛進入該路段。',
+                importance: '通常用於單行道的出口端或管制區域，防止車輛逆向行駛發生危險。'
+            },
+            {
+                id: 'p-2',
+                category: 'prohibitory',
+                name: '停車再開 (停)',
+                html: `
+                    <svg class="svg-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="30,5 70,5 95,30 95,70 70,95 30,95 5,70 5,30" fill="#ef4444" stroke="white" stroke-width="2"/>
+                        <text x="50" y="65" font-family="sans-serif" font-size="40" font-weight="bold" fill="white" text-anchor="middle">停</text>
+                    </svg>
+                `,
+                meaning: '車輛必須在停止線前完全停止，確認無車無人後再開。',
+                importance: '設置在無號誌的危險路口，確保駕駛人有足夠時間觀察路況，預防車禍。是路口防禦駕駛的關鍵。'
+            },
+            {
+                id: 'p-3',
+                category: 'prohibitory',
+                name: '禁止行人通行',
+                html: `
+                    <svg class="svg-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="45" fill="white" stroke="#ef4444" stroke-width="10" />
+                        <path d="M45,70 L55,70 L60,45 L50,30 L40,45 Z" fill="black" />
+                        <circle cx="50" cy="22" r="5" fill="black" />
+                        <line x1="20" y1="20" x2="80" y2="80" stroke="#ef4444" stroke-width="10" />
+                    </svg>
+                `,
+                meaning: '禁止行人進入此道路或區域。',
+                importance: '通常設在高速公路、快速道路或施工危險區域，保護行人不被高速車輛撞擊。'
+            }
+        ];
+
+        const signsGrid = document.getElementById('signs-grid');
+        
+        function renderSigns(category = 'all') {
+            signsGrid.innerHTML = '';
+            
+            const filteredSigns = category === 'all' 
+                ? trafficSignsData 
+                : trafficSignsData.filter(sign => sign.category === category);
+
+            filteredSigns.forEach(sign => {
+                const card = document.createElement('div');
+                card.className = 'sign-card bg-white rounded-2xl shadow-md p-6 border border-slate-100 flex flex-col items-center text-center';
+                
+                card.innerHTML = `
+                    <div class="h-32 flex items-center justify-center w-full mb-4">
+                        ${sign.html}
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">${sign.name}</h3>
+                    <div class="w-12 h-1 bg-green-500 rounded mb-3"></div>
+                    <p class="text-sm font-bold text-blue-700 mb-2"><i class="fa-solid fa-circle-info mr-1"></i> ${sign.meaning}</p>
+                    <p class="text-sm text-slate-600">${sign.importance}</p>
+                `;
+                signsGrid.appendChild(card);
+            });
+        }
+
+        // Tab Switching Logic
+        function switchTab(tab) {
+            document.getElementById('section-learn').classList.add('hide');
+            document.getElementById('section-quiz').classList.add('hide');
+            
+            document.getElementById(`section-${tab}`).classList.remove('hide');
+            
+            // Update nav styling (desktop)
+            document.getElementById('nav-learn').classList.remove('text-yellow-300', 'border-b-2', 'border-yellow-300');
+            document.getElementById('nav-quiz').classList.remove('text-yellow-300', 'border-b-2', 'border-yellow-300');
+            
+            if(tab === 'learn') {
+                document.getElementById('nav-learn').classList.add('text-yellow-300', 'border-b-2', 'border-yellow-300');
+                renderSigns('all'); // Re-render to ensure animations restart
+            } else if (tab === 'quiz') {
+                document.getElementById('nav-quiz').classList.add('text-yellow-300', 'border-b-2', 'border-yellow-300');
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function filterSigns(category) {
+            // Update active state of buttons
+            const buttons = document.querySelectorAll('.category-tab');
+            buttons.forEach(btn => btn.classList.remove('active', 'border-green-600', 'text-green-600'));
+            
+            const activeBtn = document.querySelector(`.category-tab[data-category="${category}"]`);
+            if(activeBtn) {
+                activeBtn.classList.add('active');
+            }
+            
+            renderSigns(category);
+        }
+
+        // --- Quiz Logic ---
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let correctAnswersCount = 0;
+
+        // Shuffle array helper function (洗牌演算法)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Generate a large pool of quiz questions (建立較大的題庫)
+        function generateQuestionsPool() {
+            const pool = [];
+            
+            // Q1: p-2 (Stop)
+            const q1Sign = trafficSignsData.find(s => s.id === 'p-2');
+            pool.push({
+                visual: q1Sign.html,
+                text: "看到這個八角形的紅色標誌，你應該怎麼做？",
+                options: ["減速慢慢開過去", "按喇叭提醒別人我要過去", "完全停下來，看清楚沒車沒人再開", "加速通過"],
+                correctAnswer: 2
+            });
+
+            // Q2: w-3 (Children)
+            const q2Sign = trafficSignsData.find(s => s.id === 'w-3');
+            pool.push({
+                visual: q2Sign.html,
+                text: "這個標誌通常會出現在哪裡附近？",
+                options: ["高速公路", "學校或公園", "停車場", "加油站"],
+                correctAnswer: 1
+            });
+
+            // Q3: tl-2 (Green walking)
+            pool.push({
+                visual: `
+                    <div class="pedestrian-light mx-auto">
+                        <div class="p-light p-active-green"><i class="fa-solid fa-person-walking"></i></div>
+                    </div>
+                `,
+                text: "當行人號誌變成「綠色小人」在走動時，代表什麼？",
+                options: ["行人不可以過馬路", "車輛可以快速通過", "行人可以走斑馬線過馬路", "準備要變成紅燈了"],
+                correctAnswer: 2
+            });
+
+            // Q4: p-1 (No entry)
+            const q4Sign = trafficSignsData.find(s => s.id === 'p-1');
+            pool.push({
+                visual: q4Sign.html,
+                text: "這個圓形紅底白橫槓的標誌叫做什麼？",
+                options: ["禁止停車", "禁止進入", "單行道", "施工中"],
+                correctAnswer: 1
+            });
+
+            // Q5: General Rule
+            pool.push({
+                visual: `<i class="fa-solid fa-circle-exclamation text-6xl text-yellow-500"></i>`,
+                text: "為什麼我們在馬路上要遵守交通號誌和標誌？",
+                options: ["因為警察在看", "為了保護自己和其他人的生命安全", "因為這是考試會考的題目", "因為號誌燈很漂亮"],
+                correctAnswer: 1
+            });
+
+            // Q6: tl-1 (Yellow light)
+            pool.push({
+                visual: `
+                    <div class="traffic-light-demo mx-auto mb-4">
+                        <div class="light"></div>
+                        <div class="light active-yellow"></div>
+                        <div class="light"></div>
+                    </div>
+                `,
+                text: "行車號誌變成「黃燈」時，駕駛人應該怎麼做？",
+                options: ["加速衝過去", "注意路況，準備減速停車", "按喇叭要前面的車快走", "閉上眼睛"],
+                correctAnswer: 1
+            });
+
+            // Q7: tl-2 (Red standing)
+            pool.push({
+                visual: `
+                    <div class="pedestrian-light mx-auto">
+                        <div class="p-light p-active-red"><i class="fa-solid fa-person"></i></div>
+                    </div>
+                `,
+                text: "當行人號誌是「紅色小人」站立時，你應該怎麼做？",
+                options: ["趕快跑過去", "在人行道上耐心等待", "跟著別人一起走", "沒看到車就可以走"],
+                correctAnswer: 1
+            });
+
+            // Q8: w-1 (Pedestrian warning)
+            const q8Sign = trafficSignsData.find(s => s.id === 'w-1');
+            pool.push({
+                visual: q8Sign.html,
+                text: "看到這個標誌，駕駛人應該注意什麼？",
+                options: ["前方有加油站", "前方有行人穿越，要減速慢行", "前方有停車場", "前方道路施工"],
+                correctAnswer: 1
+            });
+
+            // Q9: w-2 (Traffic light warning)
+            const q9Sign = trafficSignsData.find(s => s.id === 'w-2');
+            pool.push({
+                visual: q9Sign.html,
+                text: "這個標誌是要提醒駕駛人前方有什麼？",
+                options: ["火車站", "公車站牌", "紅綠燈號誌", "警察局"],
+                correctAnswer: 2
+            });
+
+            // Q10: p-3 (No pedestrians)
+            const q10Sign = trafficSignsData.find(s => s.id === 'p-3');
+            pool.push({
+                visual: q10Sign.html,
+                text: "看到這個標誌，代表行人可以走進去嗎？",
+                options: ["可以，只要小心就好", "不可以，這是禁止行人通行的區域", "只有大人可以走", "只有晚上可以走"],
+                correctAnswer: 1
+            });
+
+            // Q11: General shape (Warning)
+            pool.push({
+                visual: `<i class="fa-solid fa-triangle-exclamation text-8xl text-yellow-500"></i>`,
+                text: "「三角形」的交通標誌，通常是代表什麼意思？",
+                options: ["警告前面有特殊狀況", "禁止做某件事", "告訴你地點在哪裡", "可以隨便停車"],
+                correctAnswer: 0
+            });
+
+            // Q12: General shape (Prohibitory)
+            pool.push({
+                visual: `<i class="fa-solid fa-ban text-8xl text-red-500"></i>`,
+                text: "「圓形或八角形」的紅色交通標誌，通常代表什麼？",
+                options: ["歡迎光臨", "警告", "禁制（規定你不能做或必須做的事）", "指示方向"],
+                correctAnswer: 2
+            });
+            
+            // Q13: tl-2 (Green flashing)
+            pool.push({
+                visual: `
+                    <div class="pedestrian-light mx-auto">
+                        <div class="p-light p-active-green" style="animation: pulse 1s infinite;"><i class="fa-solid fa-person-walking"></i></div>
+                    </div>
+                    <style>@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }</style>
+                `,
+                text: "當你還沒開始過馬路，但「小綠人」已經開始閃爍時，你該怎麼辦？",
+                options: ["趕快用百米衝刺跑過去", "停在人行道等下一次綠燈", "慢慢走過去", "看車子遠近決定"],
+                correctAnswer: 1
+            });
+
+            return pool;
+        }
+
+        function startQuiz() {
+            // 從題庫中洗牌，並取出前 8 題
+            const allQuestions = generateQuestionsPool();
+            currentQuestions = shuffleArray(allQuestions).slice(0, 8);
+            
+            currentQuestionIndex = 0;
+            correctAnswersCount = 0;
+            
+            document.getElementById('quiz-intro').classList.add('hide');
+            document.getElementById('quiz-result').classList.add('hide');
+            document.getElementById('quiz-question').classList.remove('hide');
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = currentQuestions[currentQuestionIndex];
+            
+            // Update Progress & Score
+            document.getElementById('question-progress').innerText = `問題 ${currentQuestionIndex + 1} / ${currentQuestions.length}`;
+            document.getElementById('score-display').innerText = `答對: ${correctAnswersCount} 題`;
+            
+            // Render Question
+            document.getElementById('question-visual').innerHTML = q.visual;
+            document.getElementById('question-text').innerText = q.text;
+            
+            // Render Options
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((optionText, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option text-left p-4 border-2 border-slate-200 rounded-xl font-medium text-lg transition duration-200';
+                btn.innerText = optionText;
+                btn.onclick = () => selectOption(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Reset UI states
+            document.getElementById('feedback-container').classList.add('hide');
+            document.getElementById('next-btn').classList.add('hide');
+            document.getElementById('finish-btn').classList.add('hide');
+        }
+
+        function selectOption(selectedIndex, buttonElement) {
+            // Disable all buttons
+            const buttons = document.querySelectorAll('.quiz-option');
+            buttons.forEach(btn => btn.disabled = true);
+            
+            const q = currentQuestions[currentQuestionIndex];
+            const isCorrect = selectedIndex === q.correctAnswer;
+            
+            const feedbackContainer = document.getElementById('feedback-container');
+            const feedbackText = document.getElementById('feedback-text');
+            
+            feedbackContainer.classList.remove('hide');
+            
+            if (isCorrect) {
+                correctAnswersCount++; 
+                document.getElementById('score-display').innerText = `答對: ${correctAnswersCount} 題`;
+                buttonElement.classList.add('correct');
+                feedbackText.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 mr-2"></i> 答對了！非常棒！';
+                feedbackText.className = 'text-xl font-bold text-green-600 mb-4';
+            } else {
+                buttonElement.classList.add('wrong');
+                // Highlight correct answer
+                buttons[q.correctAnswer].classList.add('correct');
+                feedbackText.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-500 mr-2"></i> 答錯了。<br><span class="text-sm mt-2 block text-slate-600">正確答案是: ${q.options[q.correctAnswer]}</span>`;
+                feedbackText.className = 'text-xl font-bold text-red-600 mb-4';
+            }
+
+            // Show next or finish button
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                document.getElementById('next-btn').classList.remove('hide');
+            } else {
+                document.getElementById('finish-btn').classList.remove('hide');
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function showResults() {
+            document.getElementById('quiz-question').classList.add('hide');
+            document.getElementById('quiz-result').classList.remove('hide');
+            
+            const resultIcon = document.getElementById('result-icon');
+            const resultTitle = document.getElementById('result-title');
+            const resultScore = document.getElementById('result-score');
+            const resultMessage = document.getElementById('result-message');
+            
+            // 計算最終百分制分數
+            const finalScore = Math.round((correctAnswersCount / currentQuestions.length) * 100);
+            
+            resultScore.innerText = `你的總分是：${finalScore} 分 (答對 ${correctAnswersCount} / ${currentQuestions.length} 題)`;
+            
+            if (finalScore === 100) {
+                resultIcon.innerHTML = '<i class="fa-solid fa-trophy text-yellow-500"></i>';
+                resultTitle.innerText = "太厲害了！滿分！";
+                resultTitle.className = "text-3xl font-black mb-2 text-yellow-500";
+                resultMessage.innerText = "你完全掌握了交通號誌的知識，是名符其實的交通安全小達人！";
+            } else if (finalScore >= 60) {
+                resultIcon.innerHTML = '<i class="fa-solid fa-thumbs-up text-blue-500"></i>';
+                resultTitle.innerText = "表現不錯喔！";
+                resultTitle.className = "text-3xl font-black mb-2 text-blue-500";
+                resultMessage.innerText = "你對交通標誌有很好的了解，再複習一下錯的題目就更完美了！";
+            } else {
+                resultIcon.innerHTML = '<i class="fa-solid fa-book-open text-slate-500"></i>';
+                resultTitle.innerText = "繼續加油！";
+                resultTitle.className = "text-3xl font-black mb-2 text-slate-600";
+                resultMessage.innerText = "有些標誌可能還不太熟悉，建議回到「標誌圖鑑」多看幾次喔！";
+            }
+        }
+
+        // Initial setup on load
+        window.onload = () => {
+            renderSigns('all');
+            document.getElementById('nav-learn').classList.add('text-yellow-300', 'border-b-2', 'border-yellow-300');
+        };
+
+    </script>
+</body>
+</html>
