@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>皮克敏花園三消冒險 - Pikmin Match 3</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tone.js CDN for playful sound effects -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <!-- Google Fonts: Fredoka & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.font.im/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Fredoka', 'Inter', -apple-system, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* 泥土花園主題背景 */
+    .bg-garden {
+      background: radial-gradient(circle at 50% 20%, #7dbb42 0%, #4f852b 50%, #2e5517 100%);
+    }
+
+    /* 棋盤土質紋理陰影 */
+    .board-wood {
+      background: linear-gradient(135deg, #784824 0%, #543116 100%);
+      box-shadow: inset 0 6px 12px rgba(0,0,0,0.4), 0 10px 25px rgba(0,0,0,0.35);
+      border: 4px solid #a66a38;
+    }
+
+    .tile-slot {
+      background: rgba(35, 18, 7, 0.45);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+      transition: transform 0.15s ease;
+    }
+
+    .tile-slot.active-select {
+      outline: 3px solid #ffeb3b;
+      outline-offset: -2px;
+      animation: pulse-border 1.2s infinite ease-in-out;
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { outline-color: #ffeb3b; transform: scale(1); }
+      50% { outline-color: #ffffff; transform: scale(1.05); }
+    }
+
+    /* 棋子彈跳與匹配消失特效 */
+    .tile-enter {
+      animation: bounce-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .tile-pop {
+      animation: pop-dissolve 0.25s ease-out forwards;
+    }
+    .tile-swap {
+      transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    @keyframes bounce-in {
+      0% { transform: translateY(-40px) scale(0.6); opacity: 0; }
+      70% { transform: translateY(6px) scale(1.08); }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    @keyframes pop-dissolve {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3) rotate(8deg); opacity: 0.9; }
+      100% { transform: scale(0.1) rotate(-15deg); opacity: 0; }
+    }
+
+    /* 漂浮花瓣與自然光暈 */
+    .floating-leaf {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0.25;
+      animation: float-leaf 12s linear infinite;
+    }
+
+    @keyframes float-leaf {
+      0% { transform: translateY(-10%) rotate(0deg); opacity: 0; }
+      20% { opacity: 0.4; }
+      80% { opacity: 0.3; }
+      100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* 陽光日落進度條漸變 */
+    .sun-bar {
+      background: linear-gradient(90deg, #ffc107 0%, #ff5722 75%, #9c27b0 100%);
+    }
+
+    /* 確保手勢在棋盤上滑動進行三消，其餘區域可自由滾動檢視 */
+    #game-board {
+      touch-action: none;
+    }
+  </style>
+</head>
+<body class="bg-garden min-h-[100dvh] text-slate-100 flex flex-col items-center justify-between p-1.5 sm:p-3 overflow-y-auto overflow-x-hidden relative">
+
+  <!-- 背景漂浮葉片裝飾 -->
+  <div id="leaf-particles" class="fixed inset-0 overflow-hidden pointer-events-none z-0"></div>
+
+  <!-- 頂部資訊與歐擬蛹狀態列 (縮減緊湊邊距) -->
+  <header class="w-full max-w-md z-10 flex flex-col gap-1.5 pt-0.5 flex-shrink-0">
+    <!-- 標題與音效哨子控制 -->
+    <div class="flex items-center justify-between px-2">
+      <div class="flex items-center gap-1.5">
+        <span class="text-2xl sm:text-3xl">🌱</span>
+        <div>
+          <h1 class="text-lg sm:text-2xl font-bold tracking-wider text-lime-100 drop-shadow-md">皮克敏花園冒險</h1>
+          <p class="text-[11px] sm:text-xs text-lime-200/80">在日落前引導皮克敏採集花蜜！</p>
+        </div>
+      </div>
+      <!-- 哨子按鈕 (播放哨音/重置聚焦) -->
+      <button id="whistle-btn" title="吹響哨子！" class="flex items-center gap-1 bg-amber-500 hover:bg-amber-400 active:scale-95 text-amber-950 font-bold px-2.5 py-1 rounded-full shadow-lg border-2 border-amber-200 transition text-xs">
+        <span class="text-base sm:text-lg">🪈</span>
+        <span>哨子</span>
+      </button>
+    </div>
+
+    <!-- 任務目標與分數卡片 -->
+    <div class="bg-emerald-950/70 backdrop-blur-md border border-lime-500/30 rounded-xl p-2 sm:p-2.5 flex justify-between items-center shadow-lg">
+      <!-- 目標皮克敏收集進度 -->
+      <div class="flex items-center gap-2">
+        <div id="target-icon-wrap" class="relative w-9 h-9 sm:w-10 sm:h-10 bg-emerald-900/80 rounded-lg border border-lime-400/40 flex items-center justify-center p-0.5">
+          <!-- 目標圖示由 JS 動態填入 -->
+          <div id="target-svg" class="w-full h-full flex items-center justify-center"></div>
+          <span class="absolute -bottom-1 -right-1 bg-amber-400 text-stone-900 text-[9px] font-bold px-1 rounded-full border border-white">目標</span>
+        </div>
+        <div>
+          <div class="text-[11px] text-lime-200/90 font-medium">收集進度</div>
+          <div class="text-sm sm:text-base font-bold text-white tracking-wide">
+            <span id="collected-count" class="text-yellow-300">0</span> / <span id="target-count">25</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分數與步數 -->
+      <div class="flex gap-3 sm:gap-4">
+        <div class="text-center">
+          <div class="text-[10px] sm:text-[11px] text-lime-300/80 uppercase tracking-wider">剩餘步數</div>
+          <div id="moves-left" class="text-lg sm:text-xl font-bold text-amber-300 drop-shadow">20</div>
+        </div>
+        <div class="text-center">
+          <div class="text-[10px] sm:text-[11px] text-lime-300/80 uppercase tracking-wider">探險分數</div>
+          <div id="score-display" class="text-lg sm:text-xl font-bold text-lime-200 drop-shadow">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 日落進度條 (剩餘步數進度) -->
+    <div class="w-full bg-stone-900/60 rounded-full h-2 sm:h-2.5 p-0.5 border border-amber-600/40 shadow-inner flex items-center">
+      <div id="sun-progress" class="sun-bar h-full rounded-full transition-all duration-300" style="width: 100%;"></div>
+    </div>
+  </header>
+
+  <!-- 棋盤容器 (自適應寬高 min(420px, 55vh)) -->
+  <main class="w-full flex flex-col items-center justify-center my-auto z-10 px-1 py-1">
+    <div class="relative w-full max-w-[min(420px,55vh)] aspect-square p-2 board-wood rounded-2xl sm:rounded-3xl shadow-xl">
+      <!-- 7x7 棋盤網格 -->
+      <div id="game-board" class="w-full h-full grid grid-cols-7 grid-rows-7 gap-1 sm:gap-1.5">
+        <!-- 棋子格子由 JS 動態生成 -->
+      </div>
+
+      <!-- 連擊 Combo 浮動文字顯示 -->
+      <div id="combo-banner" class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 transition-all duration-300 z-30">
+        <div class="transform scale-75 bg-amber-400 text-stone-950 px-4 py-1.5 rounded-xl font-black text-xl sm:text-2xl shadow-2xl border-2 sm:border-4 border-yellow-100 flex items-center gap-1.5">
+          <span>🌸</span>
+          <span id="combo-text">超讚連擊 x2!</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 底部操作與狀態列 -->
+  <footer class="w-full max-w-md z-10 flex items-center justify-between px-2 py-1 text-[11px] sm:text-xs text-lime-200/80 flex-shrink-0">
+    <div class="flex items-center gap-1">
+      <span class="w-2 h-2 rounded-full bg-lime-400 animate-pulse"></span>
+      <span id="level-display">花園探索區 第 1 區</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <button id="sound-toggle" class="bg-emerald-900/80 hover:bg-emerald-800 text-lime-200 px-2.5 py-1 rounded-full border border-lime-500/30 active:scale-95 transition">
+        音效: 開啟 🔊
+      </button>
+      <button id="restart-btn" class="bg-stone-800/80 hover:bg-stone-700 text-amber-200 px-2.5 py-1 rounded-full border border-amber-500/30 active:scale-95 transition">
+        重開 ↺
+      </button>
+    </div>
+  </footer>
+
+  <!-- 結算彈跳視窗 (勝利 / 日落回航) -->
+  <div id="modal" class="fixed inset-0 bg-stone-950/80 backdrop-blur-sm flex items-center justify-center z-50 hidden p-4">
+    <div class="bg-gradient-to-b from-stone-900 via-emerald-950 to-stone-900 border-2 border-lime-400/50 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl transform scale-95 transition-all">
+      <div id="modal-icon" class="text-6xl mb-3 animate-bounce">🏆</div>
+      <h2 id="modal-title" class="text-2xl font-bold text-yellow-300 mb-1">任務順利達成！</h2>
+      <p id="modal-desc" class="text-lime-200/90 text-sm mb-5">皮克敏們把所有花蜜搬回歐擬蛹了！</p>
+
+      <div class="bg-black/30 rounded-2xl p-4 mb-5 border border-white/10 flex justify-around text-center">
+        <div>
+          <div class="text-xs text-stone-400">總探險分</div>
+          <div id="modal-final-score" class="text-2xl font-bold text-lime-300">12,450</div>
+        </div>
+        <div class="w-px bg-white/10"></div>
+        <div>
+          <div class="text-xs text-stone-400">剩餘步數獎勵</div>
+          <div id="modal-bonus" class="text-2xl font-bold text-amber-300">+600</div>
+        </div>
+      </div>
+
+      <button id="modal-btn" class="w-full py-3.5 bg-gradient-to-r from-lime-500 to-emerald-600 hover:from-lime-400 hover:to-emerald-500 text-stone-950 font-extrabold rounded-2xl shadow-lg border border-lime-200 active:scale-95 transition tracking-wide text-base">
+        繼續前往下一區 🚀
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /* 皮克敏與自然果實 SVG 圖標定義 (原創向量設計) */
+    const PIKMIN_PIECES = {
+      RED: {
+        id: 'RED',
+        name: '紅皮克敏',
+        color: '#ef4444',
+        glow: '#fca5a5',
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow">
+          <!-- 莖與葉片 -->
+          <path d="M50 40 Q54 18 68 12 Q75 22 55 35" fill="#4ade80" stroke="#15803d" stroke-width="2"/>
+          <path d="M50 40 L50 25" stroke="#16a34a" stroke-width="4" stroke-linecap="round"/>
+          <!-- 紅色尖尖頭部 -->
+          <circle cx="50" cy="58" r="28" fill="#ef4444"/>
+          <!-- 尖鼻子 -->
+          <polygon points="50,54 68,58 50,62" fill="#dc2626"/>
+          <!-- 大眼睛 -->
+          <ellipse cx="40" cy="50" rx="6" ry="8" fill="#ffffff"/>
+          <circle cx="41" cy="50" r="3.5" fill="#111827"/>
+          <ellipse cx="60" cy="50" rx="6" ry="8" fill="#ffffff"/>
+          <circle cx="59" cy="50" r="3.5" fill="#111827"/>
+        </svg>`
+      },
+      YELLOW: {
+        id: 'YELLOW',
+        name: '黃皮克敏',
+        color: '#eab308',
+        glow: '#fef08a',
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow">
+          <!-- 大耳朵 (抗電) -->
+          <ellipse cx="22" cy="58" rx="14" ry="9" fill="#facc15" stroke="#ca8a04" stroke-width="2" transform="rotate(-20 22 58)"/>
+          <ellipse cx="78" cy="58" rx="14" ry="9" fill="#facc15" stroke="#ca8a04" stroke-width="2" transform="rotate(20 78 58)"/>
+          <!-- 莖與花苞 -->
+          <path d="M50 42 L50 22" stroke="#16a34a" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="50" cy="18" r="7" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
+          <!-- 圓圓頭部 -->
+          <circle cx="50" cy="60" r="26" fill="#eab308"/>
+          <!-- 眼睛 -->
+          <ellipse cx="42" cy="55" rx="5.5" ry="7.5" fill="#ffffff"/>
+          <circle cx="42" cy="55" r="3" fill="#1e293b"/>
+          <ellipse cx="58" cy="55" rx="5.5" ry="7.5" fill="#ffffff"/>
+          <circle cx="58" cy="55" r="3" fill="#1e293b"/>
+        </svg>`
+      },
+      BLUE: {
+        id: 'BLUE',
+        name: '藍皮克敏',
+        color: '#3b82f6',
+        glow: '#93c5fd',
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow">
+          <!-- 盛開小花朵 -->
+          <circle cx="50" cy="16" r="5" fill="#fef08a"/>
+          <circle cx="44" cy="14" r="4.5" fill="#ffffff"/>
+          <circle cx="56" cy="14" r="4.5" fill="#ffffff"/>
+          <circle cx="50" cy="8" r="4.5" fill="#ffffff"/>
+          <path d="M50 42 L50 20" stroke="#16a34a" stroke-width="4" stroke-linecap="round"/>
+          <!-- 圓身 -->
+          <circle cx="50" cy="60" r="26" fill="#3b82f6"/>
+          <!-- 腮孔 / 小口 -->
+          <ellipse cx="50" cy="70" rx="7" ry="4" fill="#1d4ed8"/>
+          <!-- 眼睛 -->
+          <ellipse cx="42" cy="52" rx="5.5" ry="7.5" fill="#ffffff"/>
+          <circle cx="42" cy="52" r="3.2" fill="#0f172a"/>
+          <ellipse cx="58" cy="52" rx="5.5" ry="7.5" fill="#ffffff"/>
+          <circle cx="58" cy="52" r="3.2" fill="#0f172a"/>
+        </svg>`
+      },
+      PURPLE: {
+        id: 'PURPLE',
+        name: '紫皮克敏',
+        color: '#a855f7',
+        glow: '#e9d5ff',
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow">
+          <!-- 力量呆毛觸角 -->
+          <path d="M38 35 Q40 22 34 16" stroke="#581c87" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M62 35 Q60 22 66 16" stroke="#581c87" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- 莖葉 -->
+          <path d="M50 40 L50 20" stroke="#16a34a" stroke-width="4" stroke-linecap="round"/>
+          <path d="M50 22 Q60 16 64 24 Z" fill="#4ade80"/>
+          <!-- 胖胖圓頭 -->
+          <circle cx="50" cy="62" r="30" fill="#9333ea"/>
+          <!-- 眼睛 -->
+          <circle cx="41" cy="56" r="6" fill="#ffffff"/>
+          <circle cx="41" cy="56" r="3" fill="#1e1b4b"/>
+          <circle cx="59" cy="56" r="6" fill="#ffffff"/>
+          <circle cx="59" cy="56" r="3" fill="#1e1b4b"/>
+        </svg>`
+      },
+      WHITE: {
+        id: 'WHITE',
+        name: '白皮克敏',
+        color: '#f8fafc',
+        glow: '#cbd5e1',
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow">
+          <!-- 莖與小葉 -->
+          <path d="M50 42 L50 24" stroke="#16a34a" stroke-width="3" stroke-linecap="round"/>
+          <ellipse cx="56" cy="20" rx="7" ry="4" fill="#86efac" transform="rotate(-15 56 20)"/>
+          <!-- 小型嬌小頭部 -->
+          <circle cx="50" cy="62" r="22" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+          <!-- 標誌性紅寶石眼睛 (透視毒性) -->
+          <ellipse cx="43" cy="58" rx="6" ry="7" fill="#ef4444"/>
+          <circle cx="44" cy="57" r="2.5" fill="#fee2e2"/>
+          <ellipse cx="57" cy="58" rx="6" ry="7" fill="#ef4444"/>
+          <circle cx="58" cy="57" r="2.5" fill="#fee2e2"/>
+        </svg>`
+      },
+      BERRY: {
+        id: 'BERRY',
+        name: '超級花蜜果',
+        color: '#f97316',
+        glow: '#fdba74',
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full drop-shadow">
+          <!-- 葉托 -->
+          <path d="M50 30 Q40 20 30 26 Q40 32 46 36 Z" fill="#22c55e"/>
+          <path d="M50 30 Q60 20 70 26 Q60 32 54 36 Z" fill="#22c55e"/>
+          <circle cx="50" cy="24" r="3" fill="#15803d"/>
+          <!-- 金黃閃爍漿果 -->
+          <circle cx="50" cy="60" r="26" fill="#f97316"/>
+          <circle cx="43" cy="52" r="7" fill="#fb923c"/>
+          <circle cx="58" cy="66" r="5" fill="#ea580c"/>
+          <!-- 金色花蜜閃光 -->
+          <polygon points="50,42 53,50 61,50 54,55 57,63 50,58 43,63 46,55 39,50 47,50" fill="#fef08a"/>
+        </svg>`
+      }
+    };
+
+    /* 支援消除 4 連生成炸彈果實，5 連生成彩虹歐擬蛹特技 */
+    const PIECE_KEYS = ['RED', 'YELLOW', 'BLUE', 'PURPLE', 'WHITE', 'BERRY'];
+
+    const GRID_SIZE = 7;
+    let board = []; // 二維陣列 [row][col]
+    let selectedTile = null;
+    let isProcessing = false;
+    let soundEnabled = true;
+
+    // 遊戲進程數據
+    let level = 1;
+    let movesLeft = 22;
+    let maxMoves = 22;
+    let score = 0;
+    let targetType = 'RED';
+    let targetGoal = 20;
+    let collectedCount = 0;
+
+    // 音效合成引擎 (使用 Web Audio API，兼容 Tone.js)
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    // 播放合成皮克敏音效
+    const Sound = {
+      // 哨子呼喚聲
+      whistle() {
+        if (!soundEnabled) return;
+        try {
+          const ctx = getAudioContext();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          
+          const now = ctx.currentTime;
+          osc.frequency.setValueAtTime(800, now);
+          osc.frequency.exponentialRampToValueAtTime(1400, now + 0.1);
+          osc.frequency.exponentialRampToValueAtTime(1200, now + 0.25);
+          
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.25, now + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } catch (e) {}
+      },
+      // 拔出/消除音效 (Pluck)
+      pop(combo = 1) {
+        if (!soundEnabled) return;
+        try {
+          const ctx = getAudioContext();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          
+          const baseFreq = 380 + Math.min(combo * 60, 500);
+          const now = ctx.currentTime;
+          osc.frequency.setValueAtTime(baseFreq, now);
+          osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.5, now + 0.12);
+
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } catch (e) {}
+      },
+      // 移動/滑動
+      swap() {
+        if (!soundEnabled) return;
+        try {
+          const ctx = getAudioContext();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          const now = ctx.currentTime;
+          osc.frequency.setValueAtTime(320, now);
+          osc.frequency.linearRampToValueAtTime(450, now + 0.08);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } catch (e) {}
+      },
+      // 成功通關旋律
+      win() {
+        if (!soundEnabled) return;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          setTimeout(() => {
+            try {
+              const ctx = getAudioContext();
+              const osc = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.type = 'triangle';
+              const now = ctx.currentTime;
+              osc.frequency.setValueAtTime(freq, now);
+              gain.gain.setValueAtTime(0.2, now);
+              gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              osc.start(now);
+              osc.stop(now + 0.3);
+            } catch(e){}
+          }, idx * 90);
+        });
+      }
+    };
+
+    // 初始化隨機棋盤，保證起始狀態沒有三連
+    function createInitialBoard() {
+      board = [];
+      for (let r = 0; r < GRID_SIZE; r++) {
+        board[r] = [];
+        for (let c = 0; c < GRID_SIZE; c++) {
+          let validTypes = [...PIECE_KEYS];
+          // 排除上方兩個同色
+          if (r >= 2 && board[r-1][c] === board[r-2][c]) {
+            validTypes = validTypes.filter(t => t !== board[r-1][c]);
+          }
+          // 排除左方兩個同色
+          if (c >= 2 && board[r][c-1] === board[r][c-2]) {
+            validTypes = validTypes.filter(t => t !== board[r][c-1]);
+          }
+          const chosen = validTypes[Math.floor(Math.random() * validTypes.length)];
+          board[r][c] = chosen;
+        }
+      }
+    }
+
+    // 重新繪製整個棋盤
+    function renderBoard() {
+      const boardEl = document.getElementById('game-board');
+      boardEl.innerHTML = '';
+
+      for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+          const type = board[r][c];
+          const slot = document.createElement('div');
+          slot.className = 'tile-slot rounded-2xl relative flex items-center justify-center cursor-pointer p-1';
+          slot.dataset.row = r;
+          slot.dataset.col = c;
+          
+          if (selectedTile && selectedTile.r === r && selectedTile.c === c) {
+            slot.classList.add('active-select');
+          }
+
+          if (type && PIKMIN_PIECES[type]) {
+            const piece = document.createElement('div');
+            piece.className = 'w-full h-full flex items-center justify-center tile-enter transition-transform duration-150';
+            piece.innerHTML = PIKMIN_PIECES[type].svg;
+            slot.appendChild(piece);
+          }
+
+          // 事件綁定 (點擊與觸控滑動)
+          slot.addEventListener('click', () => handleTileClick(r, c));
+          attachSwipeHandler(slot, r, c);
+
+          boardEl.appendChild(slot);
+        }
+      }
+    }
+
+    function attachSwipeHandler(element, r, c) {
+      let startX = 0;
+      let startY = 0;
+
+      element.addEventListener('touchstart', (e) => {
+        if (isProcessing) return;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+      }, { passive: true });
+
+      element.addEventListener('touchend', (e) => {
+        if (isProcessing) return;
+        const touch = e.changedTouches[0];
+        const diffX = touch.clientX - startX;
+        const diffY = touch.clientY - startY;
+        const absX = Math.abs(diffX);
+        const absY = Math.abs(diffY);
+
+        // 滑動門檻判定 (大於 25px)
+        if (Math.max(absX, absY) > 25) {
+          let targetR = r;
+          let targetC = c;
+
+          if (absX > absY) {
+            targetC += diffX > 0 ? 1 : -1; // 水平移動
+          } else {
+            targetR += diffY > 0 ? 1 : -1; // 垂直移動
+          }
+
+          if (isValidCoord(targetR, targetC)) {
+            executeMove(r, c, targetR, targetC);
+          }
+        }
+      }, { passive: true });
+    }
+
+    function isValidCoord(r, c) {
+      return r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE;
+    }
+
+    function handleTileClick(r, c) {
+      if (isProcessing) return;
+      getAudioContext(); // 激活音訊上下文
+
+      if (!selectedTile) {
+        selectedTile = { r, c };
+        Sound.whistle();
+        renderBoard();
+      } else {
+        const prevR = selectedTile.r;
+        const prevC = selectedTile.c;
+
+        // 如果點擊同一個，取消選取
+        if (prevR === r && prevC === c) {
+          selectedTile = null;
+          renderBoard();
+          return;
+        }
+
+        // 判斷是否為鄰近格子
+        const isAdjacent = (Math.abs(prevR - r) + Math.abs(prevC - c)) === 1;
+
+        if (isAdjacent) {
+          executeMove(prevR, prevC, r, c);
+        } else {
+          // 選取新的一格
+          selectedTile = { r, c };
+          Sound.whistle();
+          renderBoard();
+        }
+      }
+    }
+
+    // 執行兩格交換與合法性檢查
+    async function executeMove(r1, c1, r2, c2) {
+      selectedTile = null;
+      isProcessing = true;
+      Sound.swap();
+
+      // 先交換資料
+      swapBoardData(r1, c1, r2, c2);
+      renderBoard();
+
+      // 檢查是否能消除
+      const matches = findMatches();
+
+      if (matches.length > 0) {
+        // 合法步數消耗
+        movesLeft--;
+        updateHeaderUI();
+
+        // 進入連鎖消除流程
+        await processMatchesFlow();
+
+        // 檢查勝負狀態
+        checkGameStatus();
+      } else {
+        // 非法移動，反彈復原
+        await delay(200);
+        swapBoardData(r1, c1, r2, c2);
+        renderBoard();
+      }
+
+      isProcessing = false;
+    }
+
+    function swapBoardData(r1, c1, r2, c2) {
+      const temp = board[r1][c1];
+      board[r1][c1] = board[r2][c2];
+      board[r2][c2] = temp;
+    }
+
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // 找出所有橫向與縱向的 3+ 連線
+    function findMatches() {
+      const matchSet = new Set();
+
+      // 水平檢查
+      for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE - 2; c++) {
+          const type = board[r][c];
+          if (!type) continue;
+          if (board[r][c+1] === type && board[r][c+2] === type) {
+            let matchLength = 3;
+            while (c + matchLength < GRID_SIZE && board[r][c + matchLength] === type) {
+              matchLength++;
+            }
+            for (let i = 0; i < matchLength; i++) {
+              matchSet.add(`${r},${c + i}`);
+            }
+          }
+        }
+      }
+
+      // 垂直檢查
+      for (let c = 0; c < GRID_SIZE; c++) {
+        for (let r = 0; r < GRID_SIZE - 2; r++) {
+          const type = board[r][c];
+          if (!type) continue;
+          if (board[r+1][c] === type && board[r+2][c] === type) {
+            let matchLength = 3;
+            while (r + matchLength < GRID_SIZE && board[r + matchLength][c] === type) {
+              matchLength++;
+            }
+            for (let i = 0; i < matchLength; i++) {
+              matchSet.add(`${r + i},${c}`);
+            }
+          }
+        }
+      }
+
+      return Array.from(matchSet).map(str => {
+        const [r, c] = str.split(',').map(Number);
+        return { r, c, type: board[r][c] };
+      });
+    }
+
+    async function processMatchesFlow() {
+      let combo = 1;
+
+      while (true) {
+        const matches = findMatches();
+        if (matches.length === 0) break;
+
+        // 連擊獎勵音效與提示
+        Sound.pop(combo);
+        if (combo >= 2) {
+          showComboBanner(combo);
+        }
+
+        // 標記並移除已消除的棋子
+        matches.forEach(({ r, c, type }) => {
+          // 計分與收集目標判定
+          score += 60 * combo;
+          if (type === targetType) {
+            collectedCount++;
+          }
+          board[r][c] = null;
+        });
+
+        updateHeaderUI();
+
+        // 觸發消除動畫效果
+        animateMatchedTiles(matches);
+        await delay(260);
+
+        // 棋子下落填補空缺
+        applyGravity();
+        renderBoard();
+        await delay(180);
+
+        // 頂部生成新棋子
+        refillTopEmpty();
+        renderBoard();
+        await delay(200);
+
+        combo++;
+      }
+    }
+
+    // 棋子受重力下落
+    function applyGravity() {
+      for (let c = 0; c < GRID_SIZE; c++) {
+        let emptyRow = GRID_SIZE - 1;
+        for (let r = GRID_SIZE - 1; r >= 0; r--) {
+          if (board[r][c] !== null) {
+            if (emptyRow !== r) {
+              board[emptyRow][c] = board[r][c];
+              board[r][c] = null;
+            }
+            emptyRow--;
+          }
+        }
+      }
+    }
+
+    // 頂部補入隨機新皮克敏
+    function refillTopEmpty() {
+      for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = 0; c < GRID_SIZE; c++) {
+          if (board[r][c] === null) {
+            board[r][c] = PIECE_KEYS[Math.floor(Math.random() * PIECE_KEYS.length)];
+          }
+        }
+      }
+    }
+
+    // 為被消除的格子加上彈跳淡出視覺
+    function animateMatchedTiles(matches) {
+      matches.forEach(({ r, c }) => {
+        const slot = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+        if (slot && slot.firstElementChild) {
+          slot.firstElementChild.classList.add('tile-pop');
+        }
+      });
+    }
+
+    function updateHeaderUI() {
+      document.getElementById('moves-left').textContent = Math.max(0, movesLeft);
+      document.getElementById('score-display').textContent = score.toLocaleString();
+      document.getElementById('collected-count').textContent = collectedCount;
+      document.getElementById('target-count').textContent = targetGoal;
+
+      // 日落進度條更新
+      const pct = Math.max(0, (movesLeft / maxMoves) * 100);
+      document.getElementById('sun-progress').style.width = `${pct}%`;
+
+      if (collectedCount >= targetGoal) {
+        document.getElementById('collected-count').classList.add('text-green-300');
+      }
+    }
+
+    function showComboBanner(combo) {
+      const banner = document.getElementById('combo-banner');
+      const text = document.getElementById('combo-text');
+      const messages = ['好棒！', '超讚連擊！', '不可思議！', '歐擬蛹發光了！'];
+      const msg = messages[Math.min(combo - 2, messages.length - 1)];
+      text.textContent = `${msg} x${combo}`;
+
+      banner.style.opacity = '1';
+      banner.firstElementChild.style.transform = 'scale(1.1)';
+      setTimeout(() => {
+        banner.style.opacity = '0';
+        banner.firstElementChild.style.transform = 'scale(0.8)';
+      }, 700);
+    }
+
+    function checkGameStatus() {
+      // 達成收集目標 -> 關卡勝利
+      if (collectedCount >= targetGoal) {
+        Sound.win();
+        const bonus = movesLeft * 150;
+        score += bonus;
+        showModal({
+          title: '🌸 探索大成功！',
+          desc: `皮克敏們成功搬齊了所有目標花蜜！準備啟程前往下一片花園。`,
+          icon: '🛸',
+          score: score,
+          bonus: `+${bonus}`,
+          btnText: '探索下一區 (Next) ➔',
+          isWin: true
+        });
+      } 
+      // 步數耗盡且未達成 -> 日落失敗
+      else if (movesLeft <= 0) {
+        showModal({
+          title: '🌅 太陽下山了...',
+          desc: '夜晚降臨，原生生物開始活動了！皮克敏們必須先緊急回到歐擬蛹。',
+          icon: '🏕️',
+          score: score,
+          bonus: '+0',
+          btnText: '重新挑戰本區 ↺',
+          isWin: false
+        });
+      }
+    }
+
+    function showModal({ title, desc, icon, score, bonus, btnText, isWin }) {
+      const modal = document.getElementById('modal');
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-desc').textContent = desc;
+      document.getElementById('modal-icon').textContent = icon;
+      document.getElementById('modal-final-score').textContent = score.toLocaleString();
+      document.getElementById('modal-bonus').textContent = bonus;
+      
+      const btn = document.getElementById('modal-btn');
+      btn.textContent = btnText;
+      btn.onclick = () => {
+        modal.classList.add('hidden');
+        if (isWin) {
+          level++;
+          startLevel(level);
+        } else {
+          startLevel(level);
+        }
+      };
+
+      modal.classList.remove('hidden');
+    }
+
+    // 啟動指定關卡
+    function startLevel(lvl) {
+      document.getElementById('level-display').textContent = `花園探索區 第 ${lvl} 區`;
+      
+      // 輪替關卡目標皮克敏
+      const targetPool = ['RED', 'YELLOW', 'BLUE', 'PURPLE', 'WHITE', 'BERRY'];
+      targetType = targetPool[(lvl - 1) % targetPool.length];
+      
+      // 動態更新目標 SVG 圖示
+      document.getElementById('target-svg').innerHTML = PIKMIN_PIECES[targetType].svg;
+
+      // 關卡參數設定
+      maxMoves = Math.max(18, 24 - lvl);
+      movesLeft = maxMoves;
+      targetGoal = 18 + (lvl * 3);
+      collectedCount = 0;
+      selectedTile = null;
+      isProcessing = false;
+
+      updateHeaderUI();
+      createInitialBoard();
+      renderBoard();
+    }
+
+    function initLeaves() {
+      const container = document.getElementById('leaf-particles');
+      container.innerHTML = '';
+      const leafSVGs = ['🍃', '🍂', '🌸', '✨'];
+      for (let i = 0; i < 15; i++) {
+        const leaf = document.createElement('div');
+        leaf.className = 'floating-leaf text-lg';
+        leaf.textContent = leafSVGs[Math.floor(Math.random() * leafSVGs.length)];
+        leaf.style.left = `${Math.random() * 100}vw`;
+        leaf.style.animationDelay = `${Math.random() * 12}s`;
+        leaf.style.animationDuration = `${8 + Math.random() * 8}s`;
+        container.appendChild(leaf);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initLeaves();
+      startLevel(1);
+
+      // 哨子按鈕
+      document.getElementById('whistle-btn').addEventListener('click', () => {
+        Sound.whistle();
+        selectedTile = null;
+        renderBoard();
+      });
+
+      // 音效切換
+      const soundBtn = document.getElementById('sound-toggle');
+      soundBtn.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        soundBtn.textContent = soundEnabled ? '音效: 開啟 🔊' : '音效: 靜音 🔇';
+      });
+
+      // 重新開始
+      document.getElementById('restart-btn').addEventListener('click', () => {
+        startLevel(level);
+      });
+    });
+  </script>
+</body>
+</html>
