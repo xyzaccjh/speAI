@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第6-10週｜專注力與自我管理｜整合互動教材</title>
+<style>
+:root{
+  --bg:#f6fbff;
+  --ink:#17324d;
+  --blue:#0d4c86;
+  --blue2:#dfeeff;
+  --soft:#f9fbff;
+  --yellow:#fff4c9;
+  --pink:#ffe6ec;
+  --green:#e9f7e1;
+  --line:#d8e2ec;
+  --shadow:0 6px 18px rgba(38,78,117,.07);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Microsoft JhengHei","Noto Sans TC",sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}
+.wrap{max-width:1120px;margin:auto;padding:18px}
+.hero{
+  background:linear-gradient(135deg,#dfeeff,#f7fbff);
+  border:1px solid #d2e2f1;border-radius:24px;padding:24px;box-shadow:var(--shadow);margin-bottom:16px
+}
+h1{margin:0;color:#0d3b73;font-size:clamp(30px,4.6vw,48px)}
+h2{margin:0 0 12px;color:var(--blue);font-size:30px}
+h3{margin:0 0 8px;color:#174f83}
+p{margin:10px 0}
+.tag{display:inline-block;background:#fff1aa;padding:6px 12px;border-radius:999px;font-weight:700}
+.quote{margin-top:12px;background:#fff;border-left:6px solid #f0c343;padding:12px 14px;border-radius:12px;font-weight:700}
+.nav{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px
+}
+.nav button{
+  border:none;border-radius:14px;padding:12px 10px;font:inherit;font-weight:700;cursor:pointer;
+  background:white;border:1px solid var(--line);box-shadow:var(--shadow);color:#17476f
+}
+.nav button.active{background:#17619c;color:white;border-color:#17619c}
+.panel{
+  display:none;background:white;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow);margin-bottom:16px
+}
+.panel.active{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:16px}
+.card.softblue{background:#eef6ff}
+.card.softyellow{background:#fff9de}
+.card.softpink{background:#fff0f4}
+.card.softgreen{background:#eef9e9}
+.pick{cursor:pointer;border:2px solid transparent;transition:.18s}
+.pick.sel{border-color:#1b6ca8;box-shadow:0 0 0 3px rgba(27,108,168,.12)}
+.emoji{font-size:40px;display:block;margin-bottom:6px}
+.scenario{background:#fafcff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:12px 0}
+button.choice, .smallbtn{
+  border:none;border-radius:10px;padding:9px 12px;font:inherit;font-weight:700;cursor:pointer;
+  background:#eaf2f8;color:#17476f;margin:4px 6px 0 0
+}
+button.choice.active{background:#1b6ca8;color:white}
+button.primary{
+  border:none;border-radius:12px;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer;
+  background:#145f9c;color:white
+}
+button.secondary{
+  border:none;border-radius:12px;padding:10px 14px;font:inherit;font-weight:700;cursor:pointer;
+  background:#e8f0f7;color:#184669
+}
+.good{color:#24713b;font-weight:700}
+.try{color:#9a5a00;font-weight:700}
+.opt{display:block;background:#f8fbff;border:1px solid #dce6ef;border-radius:12px;padding:10px;margin:8px 0}
+textarea, input[type=text]{
+  width:100%;border:1px solid #cad7e2;border-radius:12px;padding:10px;font:inherit;background:white
+}
+textarea{min-height:88px;resize:vertical}
+.stepbox{background:#f8fbff;border:1px solid #dce6ef;border-radius:12px;padding:10px;margin-top:8px}
+.step{padding:8px 10px;border-radius:10px;background:#eef4f9;border:1px solid #d8e4ef;margin:6px 0}
+.summary{
+  display:none;background:#edf8e9;border:1px solid #cce3c3;border-radius:14px;padding:14px;margin-top:12px
+}
+.progress{height:12px;background:#e6edf3;border-radius:999px;overflow:hidden;margin-top:14px}
+.bar{height:100%;width:0;background:#77a9d9;transition:.35s}
+.home-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:12px}
+.home-cards .card{min-height:120px}
+.footer{font-size:14px;color:#637387;text-align:center;padding:10px 0 20px}
+.note{font-size:14px;color:#66778a}
+hr.sep{border:none;border-top:1px dashed #d9e3ec;margin:16px 0}
+@media(max-width:900px){
+  .nav{grid-template-columns:repeat(3,1fr)}
+  .grid2,.grid3,.home-cards{grid-template-columns:1fr}
+  .wrap{padding:12px}
+  .panel,.hero{padding:18px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <span class="tag">社會技巧｜第一學期第二單元</span>
+    <h1>專注力與自我管理（第6～10週）</h1>
+    <p>這是一套可連續使用的互動教材，依照第6～10週主題整合成同一份網頁。重點不是要求學生「完全不能分心」，而是一步一步學會：<b>發現分心、選擇方法、回到任務、檢查結果。</b></p>
+    <div class="quote">建議用法：每週上課時切到對應週次即可；如果學生需要，也可以反覆回看前一週內容。</div>
+    <div class="progress"><div class="bar" id="overallBar"></div></div>
+  </div>
+
+  <div class="nav">
+    <button class="tab active" data-tab="home">總覽</button>
+    <button class="tab" data-tab="w6">第6週</button>
+    <button class="tab" data-tab="w7">第7週</button>
+    <button class="tab" data-tab="w8">第8週</button>
+    <button class="tab" data-tab="w9">第9週</button>
+    <button class="tab" data-tab="w10">第10週</button>
+  </div>
+
+  <section class="panel active" id="home">
+    <h2>單元總覽</h2>
+    <p>第6～10週的學習路線如下：</p>
+    <div class="home-cards">
+      <div class="card softblue"><h3>第6週</h3><b>我為什麼會分心？</b><br>辨識外在事情、身體狀態、情緒與想法。</div>
+      <div class="card softyellow"><h3>第7週</h3><b>我的專注工具箱</b><br>學會選擇環境策略、身體策略、提醒策略。</div>
+      <div class="card softgreen"><h3>第8週</h3><b>大任務變小任務</b><br>把「看起來很難開始」的事拆成小步驟。</div>
+      <div class="card softpink"><h3>第9週</h3><b>分心了，我怎麼回來？</b><br>練習停一停、看原因、選方法、回任務。</div>
+      <div class="card softblue"><h3>第10週</h3><b>我的專注使用說明書</b><br>整理自己的分心模式與最有用的方法。</div>
+    </div>
+    <hr class="sep">
+    <p><b>使用提醒：</b>這份教材會自動把文字內容暫時存留在目前瀏覽器中，方便課堂中切換頁面後不會消失。如果要重新開始，可以按每一週底部的「清除本週內容」。</p>
+  </section>
+
+  <section class="panel" id="w6">
+    <h2>第6週｜我為什麼會分心？</h2>
+    <p>本週目標：辨識至少三種分心來源，找出自己最常見的分心情境。</p>
+
+    <div class="grid3">
+      <div class="card pick softblue w6pick" data-target="外在的事情：環境、人、聲音、物品，都可能把注意力拉走。">
+        <span class="emoji">🌍</span><b>外在的事情</b><br><small>環境／人／物品</small>
+      </div>
+      <div class="card pick softyellow w6pick" data-target="身體狀態：累、餓、不舒服，會讓專注變困難。">
+        <span class="emoji">🧍</span><b>我的身體</b><br><small>疲累／飢餓／不舒服</small>
+      </div>
+      <div class="card pick softpink w6pick" data-target="情緒與想法：生氣、緊張、擔心，或一直想到別的事，也會讓注意力跑掉。">
+        <span class="emoji">💭</span><b>我的情緒或想法</b><br><small>心情／擔心／想太多</small>
+      </div>
+    </div>
+    <p id="w6msg" class="good"></p>
+
+    <div class="scenario" data-answer="外在">
+      <b>情境A：</b>老師正在說明作業，走廊突然有人大聲說話，我一直轉頭看。
+      <div><button class="choice">外在</button><button class="choice">身體</button><button class="choice">情緒／想法</button></div>
+      <div class="fb"></div>
+    </div>
+    <div class="scenario" data-answer="身體">
+      <b>情境B：</b>下午上課時我很累，一直打哈欠，看課本看不進去。
+      <div><button class="choice">外在</button><button class="choice">身體</button><button class="choice">情緒／想法</button></div>
+      <div class="fb"></div>
+    </div>
+    <div class="scenario" data-answer="情緒／想法">
+      <b>情境C：</b>剛剛和同學有不愉快，上課時腦袋一直想到那件事。
+      <div><button class="choice">外在</button><button class="choice">身體</button><button class="choice">情緒／想法</button></div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="card">
+      <h3>我的分心地圖</h3>
+      <label class="opt"><input type="checkbox" class="persist" id="w6c1"> 聲音，例如同學聊天、外面聲音</label>
+      <label class="opt"><input type="checkbox" class="persist" id="w6c2"> 人，例如同學、老師、路過的人</label>
+      <label class="opt"><input type="checkbox" class="persist" id="w6c3"> 東西，例如手機、桌上物品</label>
+      <label class="opt"><input type="checkbox" class="persist" id="w6c4"> 身體，例如累、餓、不舒服</label>
+      <label class="opt"><input type="checkbox" class="persist" id="w6c5"> 情緒，例如生氣、緊張、焦慮</label>
+      <label class="opt"><input type="checkbox" class="persist" id="w6c6"> 腦中的想法，例如想到其他事情</label>
+      <p><b>我最常遇到的兩種分心：</b></p>
+      <textarea class="persist" id="w6text1"></textarea>
+      <p><b>今天我發現：</b></p>
+      <textarea class="persist" id="w6text2"></textarea>
+      <p><button class="primary" onclick="showWeekSummary('w6')">完成本週小結</button> <button class="secondary" onclick="resetWeek('w6')">清除本週內容</button></p>
+      <div class="summary" id="w6summary"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="w7">
+    <h2>第7週｜我的專注工具箱</h2>
+    <p>本週目標：認識至少三種專注策略，並找出對自己有幫助的方法。</p>
+
+    <div class="grid3">
+      <div class="card pick softblue w7pick" data-target="環境策略：整理桌面、換位置、把不需要的東西收起來，減少外在干擾。">
+        <span class="emoji">🪑</span><b>環境策略</b><br><small>換位置／整理桌面／收起干擾物</small>
+      </div>
+      <div class="card pick softyellow w7pick" data-target="身體策略：喝水、深呼吸、短暫伸展，幫助身體回到比較穩定的狀態。">
+        <span class="emoji">🧍</span><b>身體策略</b><br><small>喝水／深呼吸／伸展</small>
+      </div>
+      <div class="card pick softgreen w7pick" data-target="提醒策略：計時器、待辦清單、口訣、小提醒，幫助自己記得回到任務。">
+        <span class="emoji">⏰</span><b>提醒策略</b><br><small>計時器／待辦清單／提醒口訣</small>
+      </div>
+    </div>
+    <p id="w7msg" class="good"></p>
+
+    <div class="scenario" data-answer="環境策略">
+      <b>情境A：</b>桌上東西很多，我一邊寫作業一邊一直玩桌上的小物品。
+      <div><button class="choice">環境策略</button><button class="choice">身體策略</button><button class="choice">提醒策略</button></div>
+      <div class="fb"></div>
+    </div>
+    <div class="scenario" data-answer="身體策略">
+      <b>情境B：</b>上課上到一半我開始很累、想打哈欠，越來越坐不住。
+      <div><button class="choice">環境策略</button><button class="choice">身體策略</button><button class="choice">提醒策略</button></div>
+      <div class="fb"></div>
+    </div>
+    <div class="scenario" data-answer="提醒策略">
+      <b>情境C：</b>我常常做到一半就忘記本來要做什麼，或不知道現在做到哪裡。
+      <div><button class="choice">環境策略</button><button class="choice">身體策略</button><button class="choice">提醒策略</button></div>
+      <div class="fb"></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>我的工具箱</h3>
+        <label class="opt"><input type="checkbox" class="persist" id="w7c1"> 換位置</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w7c2"> 整理桌面</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w7c3"> 收起干擾物</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w7c4"> 喝水</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w7c5"> 深呼吸</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w7c6"> 伸展一下</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w7c7"> 用計時器</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w7c8"> 列待辦清單</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w7c9"> 對自己說提醒口訣</label>
+      </div>
+      <div class="card">
+        <p><b>我最容易在什麼情況下分心？</b></p>
+        <textarea class="persist" id="w7text1"></textarea>
+        <p><b>對我最有幫助的兩個方法是：</b></p>
+        <textarea class="persist" id="w7text2"></textarea>
+        <p><b>下次我發現自己分心時，我準備先做：</b></p>
+        <textarea class="persist" id="w7text3"></textarea>
+      </div>
+    </div>
+    <p><button class="primary" onclick="showWeekSummary('w7')">完成本週小結</button> <button class="secondary" onclick="resetWeek('w7')">清除本週內容</button></p>
+    <div class="summary" id="w7summary"></div>
+  </section>
+
+  <section class="panel" id="w8">
+    <h2>第8週｜大任務變小任務</h2>
+    <p>本週目標：把一件「看起來很多」的事情，拆成可以開始的小步驟。</p>
+
+    <div class="card softgreen">
+      <h3>先想一想</h3>
+      <p>有些時候不是我不想做，而是我不知道要從哪裡開始。這時候，把大任務拆小，會比較容易開始。</p>
+    </div>
+
+    <div class="scenario">
+      <b>練習A：</b>「完成國文作業」看起來很多，下面哪一個比較像第一步？
+      <div><button class="choice">把整份全部寫完</button><button class="choice">先拿出聯絡簿確認作業</button><button class="choice">先想考試會不會很難</button></div>
+      <div class="fb" data-correct="先拿出聯絡簿確認作業"></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>把任務切一切</h3>
+        <p><b>我要拆解的任務：</b></p>
+        <input type="text" class="persist" id="w8task" placeholder="例如：整理書包、寫數學作業、準備報告">
+        <div class="stepbox">
+          <div class="step">第1步：<input type="text" class="persist" id="w8s1" placeholder="先做什麼？"></div>
+          <div class="step">第2步：<input type="text" class="persist" id="w8s2" placeholder="再做什麼？"></div>
+          <div class="step">第3步：<input type="text" class="persist" id="w8s3" placeholder="接下來呢？"></div>
+          <div class="step">第4步：<input type="text" class="persist" id="w8s4" placeholder="最後呢？"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>自我提醒</h3>
+        <p><b>如果覺得任務太多，我可以提醒自己：</b></p>
+        <label class="opt"><input type="checkbox" class="persist" id="w8c1"> 先不要想全部，先想下一步</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w8c2"> 從最簡單的一步開始</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w8c3"> 做完一步再看下一步</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w8c4"> 需要時可以請老師提醒我</label>
+        <p><b>我今天學到：</b></p>
+        <textarea class="persist" id="w8text1"></textarea>
+      </div>
+    </div>
+    <p><button class="primary" onclick="showWeekSummary('w8')">完成本週小結</button> <button class="secondary" onclick="resetWeek('w8')">清除本週內容</button></p>
+    <div class="summary" id="w8summary"></div>
+  </section>
+
+  <section class="panel" id="w9">
+    <h2>第9週｜分心了，我怎麼回來？</h2>
+    <p>本週目標：練習一個簡單流程，讓自己在分心後回到任務。</p>
+
+    <div class="grid4 grid2">
+      <div class="card softpink"><h3>1. 停</h3>我先發現：我現在已經分心了。</div>
+      <div class="card softblue"><h3>2. 看</h3>想一想：是什麼讓我分心？</div>
+      <div class="card softyellow"><h3>3. 選</h3>選一個方法：我要怎麼幫自己？</div>
+      <div class="card softgreen"><h3>4. 回</h3>回到下一個小步驟。</div>
+    </div>
+
+    <div class="scenario">
+      <b>情境A：</b>我寫到一半開始看別人的東西，沒有做自己的任務。現在第一句我可以怎麼對自己說？
+      <div><button class="choice">我好爛，怎麼又分心了</button><button class="choice">我現在分心了，先停一下</button><button class="choice">算了，不要做了</button></div>
+      <div class="fb" data-correct="我現在分心了，先停一下"></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>我的回來流程</h3>
+        <p><b>我剛剛是被什麼影響？</b></p>
+        <textarea class="persist" id="w9text1" placeholder="例如：太吵、太累、想到別的事"></textarea>
+        <p><b>我可以選哪一個方法？</b></p>
+        <textarea class="persist" id="w9text2" placeholder="例如：整理桌面、深呼吸、看待辦清單"></textarea>
+        <p><b>我回去要做的下一步是：</b></p>
+        <textarea class="persist" id="w9text3" placeholder="例如：先完成第一題"></textarea>
+      </div>
+      <div class="card">
+        <h3>下次我可以這樣做</h3>
+        <label class="opt"><input type="checkbox" class="persist" id="w9c1"> 先停下來，不急著責怪自己</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w9c2"> 想一想分心的原因</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w9c3"> 選一個對自己有幫助的方法</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w9c4"> 回到下一個小步驟</label>
+        <p class="note">提醒：分心不是失敗，能回來才是今天在練習的重點。</p>
+      </div>
+    </div>
+    <p><button class="primary" onclick="showWeekSummary('w9')">完成本週小結</button> <button class="secondary" onclick="resetWeek('w9')">清除本週內容</button></p>
+    <div class="summary" id="w9summary"></div>
+  </section>
+
+  <section class="panel" id="w10">
+    <h2>第10週｜我的專注使用說明書</h2>
+    <p>本週目標：把前面幾週學到的內容整理成自己的專注說明書。</p>
+
+    <div class="grid2">
+      <div class="card softblue">
+        <h3>我容易分心的時候</h3>
+        <label class="opt"><input type="checkbox" class="persist" id="w10c1"> 很吵</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w10c2"> 很累</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w10c3"> 很生氣或心情不好</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w10c4"> 任務太難</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w10c5"> 任務太多</label>
+        <label class="opt"><input type="checkbox" class="persist" id="w10c6"> 我一直想到別的事情</label>
+        <p><b>其他：</b></p>
+        <textarea class="persist" id="w10text1"></textarea>
+      </div>
+      <div class="card softgreen">
+        <h3>對我有用的方法</h3>
+        <p><b>第一招：</b></p>
+        <textarea class="persist" id="w10text2"></textarea>
+        <p><b>第二招：</b></p>
+        <textarea class="persist" id="w10text3"></textarea>
+        <p><b>如果還是不行，我可以：</b></p>
+        <textarea class="persist" id="w10text4" placeholder="例如：換位置、請老師提醒、先休息一下"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>我的專注使用說明書</h3>
+      <p><b>當我分心時，我準備這樣做：</b></p>
+      <textarea class="persist" id="w10text5" placeholder="例如：先停下來，想一下原因，再選一個適合的方法，最後回到下一個小步驟。"></textarea>
+      <p><b>我想對自己說的一句鼓勵：</b></p>
+      <input type="text" class="persist" id="w10text6" placeholder="例如：我可以慢慢把自己帶回來。">
+      <p><button class="primary" onclick="showWeekSummary('w10')">完成本週小結</button> <button class="secondary" onclick="resetWeek('w10')">清除本週內容</button></p>
+      <div class="summary" id="w10summary"></div>
+    </div>
+  </section>
+
+  <div class="footer">第6～10週｜專注力與自我管理｜整合互動教材</div>
+</div>
+
+<script>
+const tabs = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.panel');
+tabs.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    tabs.forEach(b=>b.classList.remove('active'));
+    panels.forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    localStorage.setItem('focus_tab', btn.dataset.tab);
+  });
+});
+
+function restoreTab(){
+  const tab = localStorage.getItem('focus_tab');
+  if(tab){
+    const btn = document.querySelector('.tab[data-tab="'+tab+'"]');
+    if(btn) btn.click();
+  }
+}
+restoreTab();
+
+document.querySelectorAll('.persist').forEach(el=>{
+  const saved = localStorage.getItem(el.id);
+  if(saved !== null){
+    if(el.type === 'checkbox') el.checked = saved === 'true';
+    else el.value = saved;
+  }
+  const ev = (el.tagName === 'TEXTAREA' || el.type === 'text') ? 'input' : 'change';
+  el.addEventListener(ev, ()=>{
+    if(el.type === 'checkbox') localStorage.setItem(el.id, el.checked);
+    else localStorage.setItem(el.id, el.value);
+    updateOverall();
+  });
+});
+
+function resetWeek(prefix){
+  const ids = [...document.querySelectorAll('[id^="'+prefix+'"]')];
+  ids.forEach(el=>{
+    if(el.classList.contains('summary')) return;
+    if(el.type === 'checkbox'){ el.checked = false; localStorage.removeItem(el.id); }
+    else if(el.tagName === 'TEXTAREA' || el.type === 'text'){ el.value=''; localStorage.removeItem(el.id); }
+    else if(el.classList.contains('pick')){}
+  });
+  document.querySelectorAll('#'+prefix+' .pick').forEach(x=>x.classList.remove('sel'));
+  const msg = document.getElementById(prefix+'msg');
+  if(msg) msg.textContent = '';
+  document.querySelectorAll('#'+prefix+' .choice').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('#'+prefix+' .fb').forEach(x=>x.textContent='');
+  document.getElementById(prefix+'summary').style.display='none';
+  localStorage.removeItem(prefix+'_pick');
+  localStorage.removeItem(prefix+'_summary');
+  updateOverall();
+}
+
+function showWeekSummary(prefix){
+  const box = document.getElementById(prefix+'summary');
+  let html = '';
+  if(prefix === 'w6'){
+    const checks = ['w6c1','w6c2','w6c3','w6c4','w6c5','w6c6'].filter(id=>document.getElementById(id).checked)
+      .map(id=>document.getElementById(id).parentNode.textContent.trim());
+    html = '<b>本週小結</b><br>我常見的分心來源有：'+(checks.length?checks.join('、'):'尚未勾選')+'。<br>'+
+           '我最常遇到的兩種分心：'+val('w6text1')+'。<br>今天我發現：'+val('w6text2')+'。';
+  }
+  if(prefix === 'w7'){
+    const checks = ['w7c1','w7c2','w7c3','w7c4','w7c5','w7c6','w7c7','w7c8','w7c9'].filter(id=>document.getElementById(id).checked)
+      .map(id=>document.getElementById(id).parentNode.textContent.trim());
+    html = '<b>本週小結</b><br>我目前工具箱中的方法有：'+(checks.length?checks.join('、'):'尚未勾選')+'。<br>'+
+           '我最容易分心的情況：'+val('w7text1')+'。<br>'+
+           '對我最有幫助的兩個方法：'+val('w7text2')+'。<br>'+
+           '下次我準備先做：'+val('w7text3')+'。';
+  }
+  if(prefix === 'w8'){
+    html = '<b>本週小結</b><br>我要拆解的任務是：'+val('w8task')+'。<br>'+
+           '我的步驟：1. '+val('w8s1')+'；2. '+val('w8s2')+'；3. '+val('w8s3')+'；4. '+val('w8s4')+'。<br>'+
+           '今天我學到：'+val('w8text1')+'。';
+  }
+  if(prefix === 'w9'){
+    html = '<b>本週小結</b><br>我分心時可能受到：'+val('w9text1')+'。<br>'+
+           '我可以選的方法：'+val('w9text2')+'。<br>'+
+           '我回去要做的下一步：'+val('w9text3')+'。';
+  }
+  if(prefix === 'w10'){
+    const checks = ['w10c1','w10c2','w10c3','w10c4','w10c5','w10c6'].filter(id=>document.getElementById(id).checked)
+      .map(id=>document.getElementById(id).parentNode.textContent.trim());
+    html = '<b>我的專注使用說明書</b><br>我容易分心的時候：'+(checks.length?checks.join('、'):'尚未勾選')+'。<br>'+
+           '其他情況：'+val('w10text1')+'。<br>'+
+           '對我有用的方法：第一招－'+val('w10text2')+'；第二招－'+val('w10text3')+'。<br>'+
+           '如果還是不行，我可以：'+val('w10text4')+'。<br>'+
+           '當我分心時，我準備這樣做：'+val('w10text5')+'。<br>'+
+           '我想對自己說：'+val('w10text6')+'。';
+  }
+  box.innerHTML = html + '<br><br><b>提醒：</b>找到適合自己的方法，就是在建立自我管理能力。';
+  box.style.display='block';
+  localStorage.setItem(prefix+'_summary', box.innerHTML);
+  updateOverall();
+}
+
+function val(id){
+  const v = document.getElementById(id).value.trim();
+  return v ? v : '尚未填寫';
+}
+
+function restoreSummaries(){
+  ['w6','w7','w8','w9','w10'].forEach(prefix=>{
+    const s = localStorage.getItem(prefix+'_summary');
+    if(s){
+      const box = document.getElementById(prefix+'summary');
+      box.innerHTML = s;
+      box.style.display='block';
+    }
+  });
+}
+restoreSummaries();
+
+function bindPick(className, msgId, key){
+  document.querySelectorAll('.'+className).forEach(el=>{
+    if(localStorage.getItem(key) === el.dataset.target){ el.classList.add('sel'); document.getElementById(msgId).textContent = el.dataset.target; }
+    el.addEventListener('click', ()=>{
+      document.querySelectorAll('.'+className).forEach(x=>x.classList.remove('sel'));
+      el.classList.add('sel');
+      document.getElementById(msgId).textContent = el.dataset.target;
+      localStorage.setItem(key, el.dataset.target);
+      updateOverall();
+    });
+  });
+}
+bindPick('w6pick','w6msg','w6_pick');
+bindPick('w7pick','w7msg','w7_pick');
+
+document.querySelectorAll('.scenario').forEach(sc=>{
+  const normalAnswer = sc.dataset.answer;
+  const fbNode = sc.querySelector('.fb');
+  const altAnswer = fbNode ? fbNode.dataset.correct : null;
+  sc.querySelectorAll('.choice').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      sc.querySelectorAll('.choice').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');
+      const correct = normalAnswer || altAnswer;
+      if(btn.textContent === correct){
+        fbNode.textContent='✓ 很好，判斷正確。';
+        fbNode.className='fb good';
+      }else{
+        fbNode.textContent='再想一下：哪個答案比較能幫助自己回到任務？';
+        fbNode.className='fb try';
+      }
+      updateOverall();
+    });
+  });
+});
+
+function updateOverall(){
+  let filled = 0;
+  let total = 0;
+  document.querySelectorAll('.persist').forEach(el=>{
+    total++;
+    if(el.type==='checkbox'){ if(el.checked) filled++; }
+    else if(el.value.trim()) filled++;
+  });
+  total += 2;
+  if(localStorage.getItem('w6_pick')) filled++;
+  if(localStorage.getItem('w7_pick')) filled++;
+  const pct = Math.round((filled/total)*100);
+  document.getElementById('overallBar').style.width = pct + '%';
+}
+updateOverall();
+</script>
+</body>
+</html>

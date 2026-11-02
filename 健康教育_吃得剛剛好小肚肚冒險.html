@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>吃得剛剛好 - 特教友善飲食小遊戲</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    
+    .bounce-gentle {
+      animation: gentleBounce 2s infinite ease-in-out;
+    }
+    
+    @keyframes gentleBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .pulse-glow {
+      animation: pulseGlow 1.2s infinite alternate;
+    }
+    
+    @keyframes pulseGlow {
+      from { box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+      to { box-shadow: 0 0 25px rgba(16, 185, 129, 0.9); }
+    }
+
+    .btn-press:active {
+      transform: scale(0.92);
+    }
+  </style>
+</head>
+<body class="bg-amber-50 text-slate-800 min-h-screen flex flex-col justify-between p-2 sm:p-4 select-none">
+
+  <!-- 頂部資訊與飽足感指示器 -->
+  <header class="max-w-xl mx-auto w-full bg-white rounded-3xl p-3 sm:p-4 shadow-md border-4 border-amber-200">
+    <div class="flex items-center justify-between flex-wrap gap-2">
+      <div class="flex items-center gap-2">
+        <span class="text-3xl sm:text-4xl bounce-gentle">🍎</span>
+        <div>
+          <h1 class="text-lg sm:text-xl font-black text-amber-800">吃得剛剛好！小肚肚冒險</h1>
+          <p class="text-xs sm:text-sm font-bold text-slate-500">不餓也不太脹，綠色剛剛好最舒服！</p>
+        </div>
+      </div>
+      
+      <!-- 語音輔助開關與速度調整 -->
+      <div class="flex items-center gap-2">
+        <button id="voiceToggleBtn" class="flex items-center gap-1 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-3 py-1.5 rounded-2xl text-xs sm:text-sm border border-amber-300">
+          <span id="voiceIcon">🔊</span>
+          <span id="voiceLabel">語音：開</span>
+        </button>
+        <div class="flex items-center bg-slate-100 rounded-2xl p-1 text-xs font-bold border border-slate-300">
+          <button id="speedSlow" class="px-2 py-1 rounded-xl bg-amber-500 text-white shadow-sm font-black">超慢</button>
+          <button id="speedNormal" class="px-2 py-1 rounded-xl text-slate-600 font-bold">一般</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 飽足感視覺溫度計 -->
+    <div class="mt-3 bg-amber-50 p-2.5 rounded-2xl border-2 border-amber-100">
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-xs sm:text-sm font-black flex items-center gap-1.5" id="stomachMood">
+          <span id="stomachEmoji" class="text-2xl">🙂</span> 
+          <span id="stomachText" class="text-slate-700">小肚肚現在：有點餓，吃點好吃的吧！</span>
+        </span>
+        <span id="meterPercent" class="text-xs sm:text-sm font-black bg-white px-2.5 py-0.5 rounded-full border border-amber-300 text-amber-800">
+          飽足感：20%
+        </span>
+      </div>
+
+      <!-- 彩色進度條 -->
+      <div class="relative w-full h-8 bg-slate-200 rounded-full overflow-hidden p-1 shadow-inner border border-slate-300">
+        <!-- 刻度提示 -->
+        <div class="absolute inset-0 flex text-[11px] font-black items-center text-center pointer-events-none z-10">
+          <div class="w-[40%] text-blue-900 pl-2 text-left">太餓了</div>
+          <div class="w-[40%] bg-emerald-400/30 h-full flex items-center justify-center text-emerald-900 font-black border-x-2 border-emerald-500">
+            ★ 剛剛好最舒服 ★
+          </div>
+          <div class="w-[20%] text-rose-800 pr-2 text-right">太脹了</div>
+        </div>
+        
+        <!-- 動態條柱 -->
+        <div id="meterFill" class="h-full rounded-full transition-all duration-300 bg-sky-400 w-[20%]"></div>
+      </div>
+
+      <div class="flex justify-between text-[11px] font-bold text-slate-500 mt-1 px-1">
+        <span class="text-sky-700">0% 咕嚕叫</span>
+        <span class="text-emerald-700 font-black">【45% ~ 80% 剛剛好區間】</span>
+        <span class="text-rose-600">100% 肚子圓滾滾太脹</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 遊戲主要畫布區 -->
+  <main class="max-w-xl mx-auto w-full my-2 flex-grow flex flex-col items-center justify-center relative">
+    <div class="relative w-full aspect-square max-w-[420px] max-h-[420px] bg-emerald-50 rounded-3xl border-4 border-emerald-300 shadow-xl overflow-hidden flex items-center justify-center">
+      <canvas id="gameCanvas" class="w-full h-full block"></canvas>
+
+      <!-- 吃到剛剛好的光環提示 -->
+      <div id="justRightBanner" class="hidden absolute top-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-black text-xs sm:text-sm px-4 py-1.5 rounded-full shadow-lg border-2 border-white pulse-glow pointer-events-none">
+        ✨ 剛好舒服！可以點下方「我吃飽了」喔！
+      </div>
+
+      <!-- 開始遊戲遮罩 -->
+      <div id="startOverlay" class="absolute inset-0 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-20">
+        <div class="text-5xl mb-2 bounce-gentle">🐛🥦</div>
+        <h2 class="text-2xl font-black text-emerald-800 mb-2">小肚肚吃得剛剛好</h2>
+        <p class="text-sm sm:text-base text-slate-600 font-bold mb-5 leading-relaxed">
+          移動貪食龍吃蔬菜、飯和魚。<br>
+          讓小肚肚吃到<span class="text-emerald-600 font-black bg-emerald-100 px-1.5 py-0.5 rounded-lg">綠色剛剛好</span>最舒服！<br>
+          不要餓肚子，也不要吃到太脹喔！
+        </p>
+        <button id="startGameBtn" class="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white text-lg font-black px-8 py-3.5 rounded-2xl shadow-lg border-b-4 border-emerald-800 btn-press">
+          👉 開始遊戲！
+        </button>
+      </div>
+
+      <!-- 結算彈窗 -->
+      <div id="resultModal" class="hidden absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-30">
+        <div class="bg-white rounded-3xl p-5 max-w-xs sm:max-w-sm w-full text-center border-4 border-amber-300 shadow-2xl">
+          <div id="resultEmoji" class="text-6xl mb-2">🎉</div>
+          <h3 id="resultTitle" class="text-2xl font-black text-slate-800 mb-1">太棒了！剛剛好！</h3>
+          <p id="resultDesc" class="text-sm font-bold text-slate-600 mb-4 leading-relaxed">小肚肚開心地笑了，感覺最舒服！</p>
+          
+          <div class="bg-amber-50 rounded-2xl p-3 mb-4 text-left text-xs font-bold text-slate-700 space-y-1.5 border border-amber-200">
+            <div id="statDiet">🥬 營養滿分：蔬菜、魚蛋和米飯！</div>
+            <div id="statWater">💧 咕嚕喝水：幫助小肚肚消化健康！</div>
+            <div id="statMsg" class="text-emerald-700 font-black">🌟 獲得獎勵：「適量飲食好寶寶」！</div>
+          </div>
+
+          <button id="playAgainBtn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-2xl shadow-md btn-press text-base">
+            🔄 再玩一次
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 底部控制器與自主決定「我吃飽了」按鈕 -->
+  <footer class="max-w-xl mx-auto w-full bg-white rounded-3xl p-3 sm:p-4 shadow-md border-4 border-amber-200">
+    <div class="flex items-center justify-between gap-2 mb-3">
+      <div class="text-xs sm:text-sm font-bold text-slate-600">
+        💡 吃到綠色就隨時可以：
+      </div>
+      <button id="finishMealBtn" class="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black py-2.5 px-3 rounded-2xl shadow border-b-4 border-orange-700 btn-press text-sm sm:text-base flex items-center justify-center gap-1.5">
+        <span>😋 我吃飽了！停下來！</span>
+      </button>
+    </div>
+
+    <!-- 加大觸控方向鍵，利於特教學生操作 -->
+    <div class="grid grid-cols-3 gap-2 max-w-[260px] mx-auto">
+      <div></div>
+      <button id="btnUp" class="bg-emerald-100 active:bg-emerald-300 text-emerald-900 border-2 border-emerald-400 font-black rounded-2xl p-3 text-2xl shadow btn-press flex items-center justify-center">
+        ⬆️
+      </button>
+      <div></div>
+
+      <button id="btnLeft" class="bg-emerald-100 active:bg-emerald-300 text-emerald-900 border-2 border-emerald-400 font-black rounded-2xl p-3 text-2xl shadow btn-press flex items-center justify-center">
+        ⬅️
+      </button>
+      <button id="btnStop" class="bg-slate-100 active:bg-slate-200 text-slate-700 border-2 border-slate-300 font-black rounded-2xl p-1 text-xs shadow flex flex-col items-center justify-center btn-press">
+        <span class="text-xl">⏸️</span>
+        <span class="text-[10px] font-bold">暫停</span>
+      </button>
+      <button id="btnRight" class="bg-emerald-100 active:bg-emerald-300 text-emerald-900 border-2 border-emerald-400 font-black rounded-2xl p-3 text-2xl shadow btn-press flex items-center justify-center">
+        ➡️
+      </button>
+
+      <div></div>
+      <button id="btnDown" class="bg-emerald-100 active:bg-emerald-300 text-emerald-900 border-2 border-emerald-400 font-black rounded-2xl p-3 text-2xl shadow btn-press flex items-center justify-center">
+        ⬇️
+      </button>
+      <div></div>
+    </div>
+  </footer>
+
+  <script>
+    // 音效合成（Web Audio API）
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function playTone(freq, type = 'sine', duration = 0.15, gainVal = 0.1) {
+      try {
+        if (!audioCtx) audioCtx = new AudioContextClass();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    const soundEffects = {
+      eatGood: () => {
+        playTone(440, 'triangle', 0.1);
+        setTimeout(() => playTone(660, 'triangle', 0.15), 90);
+      },
+      drinkWater: () => {
+        playTone(523.25, 'sine', 0.15);
+        setTimeout(() => playTone(392, 'sine', 0.2), 110);
+      },
+      overeat: () => {
+        playTone(220, 'sawtooth', 0.3, 0.12);
+      },
+      win: () => {
+        playTone(523.25, 'triangle', 0.12);
+        setTimeout(() => playTone(659.25, 'triangle', 0.12), 120);
+        setTimeout(() => playTone(783.99, 'triangle', 0.15), 240);
+        setTimeout(() => playTone(1046.50, 'triangle', 0.3), 380);
+      }
+    };
+
+    // 語音報讀功能（特教班輔助）
+    let voiceEnabled = true;
+    function speakText(text) {
+      if (!voiceEnabled || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'zh-TW';
+      utterance.rate = 0.85; // 語速微慢，清晰易懂
+      utterance.pitch = 1.1; // 輕快親切
+      window.speechSynthesis.speak(utterance);
+    }
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const GRID_SIZE = 8; // 改為 8x8 特大網格，每個方格和食物圖示更醒目、好辨識
+    let tileSize = 45;
+
+    // 食物列表
+    const FOOD_TYPES = [
+      { id: 'veg', name: '花椰菜', emoji: '🥦', fullness: +12, type: 'good', desc: '花椰菜，多吃蔬菜身體好！' },
+      { id: 'carrot', name: '紅蘿蔔', emoji: '🥕', fullness: +10, type: 'good', desc: '紅蘿蔔，眼睛亮晶晶！' },
+      { id: 'rice', name: '白米飯', emoji: '🍚', fullness: +15, type: 'energy', desc: '香香的飯，有力氣走路！' },
+      { id: 'fish', name: '新鮮魚肉', emoji: '🐟', fullness: +14, type: 'protein', desc: '新鮮魚肉，長肌肉！' },
+      { id: 'egg', name: '荷包蛋', emoji: '🍳', fullness: +12, type: 'protein', desc: '營養雞蛋，健康長大！' },
+      { id: 'cake', name: '甜奶油蛋糕', emoji: '🍰', fullness: +26, type: 'heavy', desc: '蛋糕好甜，肚子一下子好滿！' },
+      { id: 'water', name: '健康白開水', emoji: '💧', fullness: -15, type: 'water', desc: '咕嚕喝水，幫小肚肚消化！' }
+    ];
+
+    let gameState = {
+      running: false,
+      speed: 750, // 大幅放慢速度（約0.75秒一步），給孩子充裕的注視與反應時間
+      fullness: 20, // 初始飽足度 20%
+      snake: [
+        { x: 3, y: 4 },
+        { x: 2, y: 4 },
+        { x: 1, y: 4 }
+      ],
+      dir: { x: 1, y: 0 },
+      nextDir: { x: 1, y: 0 },
+      foods: [],
+      waterCount: 0,
+      healthyCount: 0
+    };
+
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const size = Math.min(rect.width, rect.height);
+      canvas.width = size;
+      canvas.height = size;
+      tileSize = size / GRID_SIZE;
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    function spawnFoodItem() {
+      const availableCoords = [];
+      for (let x = 0; x < GRID_SIZE; x++) {
+        for (let y = 0; y < GRID_SIZE; y++) {
+          const onSnake = gameState.snake.some(segment => segment.x === x && segment.y === y);
+          const onOtherFood = gameState.foods.some(f => f.x === x && f.y === y);
+          if (!onSnake && !onOtherFood) {
+            availableCoords.push({ x, y });
+          }
+        }
+      }
+      if (availableCoords.length === 0) return;
+
+      const coord = availableCoords[Math.floor(Math.random() * availableCoords.length)];
+      
+      // 當飽足感太高 (>75%) 時，多出現水滴
+      let choice;
+      if (gameState.fullness >= 75) {
+        choice = FOOD_TYPES.find(f => f.id === 'water');
+      } else {
+        const pool = FOOD_TYPES.filter(f => f.id !== 'water');
+        choice = pool[Math.floor(Math.random() * pool.length)];
+      }
+
+      gameState.foods.push({
+        x: coord.x,
+        y: coord.y,
+        ...choice
+      });
+    }
+
+    function ensureFoodCount(count = 2) {
+      while (gameState.foods.length < count) {
+        spawnFoodItem();
+      }
+    }
+
+    const meterFill = document.getElementById('meterFill');
+    const meterPercent = document.getElementById('meterPercent');
+    const stomachEmoji = document.getElementById('stomachEmoji');
+    const stomachText = document.getElementById('stomachText');
+    const justRightBanner = document.getElementById('justRightBanner');
+
+    function updateFullnessUI() {
+      const val = Math.min(100, Math.max(0, gameState.fullness));
+      meterFill.style.width = val + '%';
+      meterPercent.textContent = `飽足感：${val}%`;
+
+      if (val < 45) {
+        // 太餓
+        meterFill.className = 'h-full rounded-full transition-all duration-300 bg-sky-400';
+        stomachEmoji.textContent = '🥺';
+        stomachText.textContent = '小肚肚：咕嚕咕嚕，想吃健康食物！';
+        justRightBanner.classList.add('hidden');
+      } else if (val >= 45 && val <= 80) {
+        // 剛剛好 (目標區間)
+        meterFill.className = 'h-full rounded-full transition-all duration-300 bg-emerald-500';
+        stomachEmoji.textContent = '😊';
+        stomachText.textContent = '小肚肚：哇！剛剛好最舒服！';
+        justRightBanner.classList.remove('hidden');
+      } else {
+        // 太撐
+        meterFill.className = 'h-full rounded-full transition-all duration-300 bg-rose-500';
+        stomachEmoji.textContent = '😣';
+        stomachText.textContent = '小肚肚：好脹喔！走不動了，快喝水！';
+        justRightBanner.classList.add('hidden');
+      }
+    }
+
+    let lastTick = 0;
+    function gameLoop(timestamp) {
+      if (!gameState.running) return;
+
+      if (timestamp - lastTick >= gameState.speed) {
+        lastTick = timestamp;
+        tick();
+      }
+
+      render();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function tick() {
+      // 避免反向直接倒退
+      if (gameState.nextDir.x !== -gameState.dir.x || gameState.nextDir.y !== -gameState.dir.y) {
+        gameState.dir = { ...gameState.nextDir };
+      }
+
+      if (gameState.dir.x === 0 && gameState.dir.y === 0) return;
+
+      const head = { ...gameState.snake[0] };
+      head.x += gameState.dir.x;
+      head.y += gameState.dir.y;
+
+      // 特教溫和設計：穿牆不死亡
+      if (head.x < 0) head.x = GRID_SIZE - 1;
+      if (head.x >= GRID_SIZE) head.x = 0;
+      if (head.y < 0) head.y = GRID_SIZE - 1;
+      if (head.y >= GRID_SIZE) head.y = 0;
+
+      // 檢查進食
+      const eatenIndex = gameState.foods.findIndex(f => f.x === head.x && f.y === head.y);
+
+      if (eatenIndex !== -1) {
+        const food = gameState.foods[eatenIndex];
+        gameState.foods.splice(eatenIndex, 1);
+        
+        gameState.fullness = Math.max(5, Math.min(100, gameState.fullness + food.fullness));
+        updateFullnessUI();
+
+        if (food.type === 'water') {
+          soundEffects.drinkWater();
+          gameState.waterCount++;
+          speakText("喝口白開水，小肚肚好舒服！");
+        } else if (food.type === 'heavy') {
+          soundEffects.overeat();
+          speakText(food.desc);
+        } else {
+          soundEffects.eatGood();
+          gameState.healthyCount++;
+          speakText(food.desc);
+        }
+
+        // 到達剛剛好提示
+        if (gameState.fullness >= 45 && gameState.fullness <= 80) {
+          setTimeout(() => {
+            if (gameState.fullness >= 45 && gameState.fullness <= 80 && gameState.running) {
+              speakText("現在是剛剛好喔！可以按下方吃飽了！");
+            }
+          }, 1100);
+        }
+
+        // 太脹警報
+        if (gameState.fullness > 80) {
+          speakText("小肚肚太撐了，找水滴喝水吧！");
+        }
+
+        gameState.snake.unshift(head);
+        // 身體上限維持 5~6 節，避免特教學生因身體打結而產生挫折
+        if (gameState.snake.length > 5) {
+          gameState.snake.pop();
+        }
+
+        ensureFoodCount(2);
+      } else {
+        gameState.snake.unshift(head);
+        gameState.snake.pop();
+      }
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 溫暖草地格子
+      for (let x = 0; x < GRID_SIZE; x++) {
+        for (let y = 0; y < GRID_SIZE; y++) {
+          ctx.fillStyle = (x + y) % 2 === 0 ? '#f0fdf4' : '#dcfce7';
+          ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+        }
+      }
+
+      // 繪製食物
+      ctx.font = `${tileSize * 0.72}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      for (const food of gameState.foods) {
+        const cx = (food.x + 0.5) * tileSize;
+        const cy = (food.y + 0.5) * tileSize;
+        ctx.fillText(food.emoji, cx, cy);
+      }
+
+      // 繪製貪食小龍
+      for (let i = gameState.snake.length - 1; i >= 0; i--) {
+        const seg = gameState.snake[i];
+        const cx = (seg.x + 0.5) * tileSize;
+        const cy = (seg.y + 0.5) * tileSize;
+        const radius = (tileSize / 2) * (i === 0 ? 0.9 : 0.75);
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        
+        if (i === 0) {
+          // 頭部表情隨飽足感變化
+          ctx.fillStyle = gameState.fullness > 80 ? '#fb7185' : '#10b981';
+          ctx.fill();
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = '#065f46';
+          ctx.stroke();
+
+          // 眼睛
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(cx - radius * 0.35, cy - radius * 0.2, radius * 0.3, 0, Math.PI * 2);
+          ctx.arc(cx + radius * 0.35, cy - radius * 0.2, radius * 0.3, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(cx - radius * 0.3, cy - radius * 0.2, radius * 0.15, 0, Math.PI * 2);
+          ctx.arc(cx + radius * 0.3, cy - radius * 0.2, radius * 0.15, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 嘴巴（太脹為圓嘟嘴，正常為微笑）
+          ctx.beginPath();
+          if (gameState.fullness > 80) {
+            ctx.arc(cx, cy + radius * 0.3, radius * 0.2, 0, Math.PI * 2);
+          } else {
+            ctx.arc(cx, cy + radius * 0.2, radius * 0.28, 0, Math.PI);
+          }
+          ctx.lineWidth = 2.5;
+          ctx.strokeStyle = '#0f172a';
+          ctx.stroke();
+        } else {
+          // 身體
+          ctx.fillStyle = i % 2 === 0 ? '#34d399' : '#6ee7b7';
+          ctx.fill();
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = '#047857';
+          ctx.stroke();
+        }
+      }
+    }
+
+    function setDirection(dx, dy) {
+      if (gameState.dir.x === 0 && gameState.dir.y === 0) {
+        gameState.dir = { x: dx, y: dy };
+      }
+      gameState.nextDir = { x: dx, y: dy };
+    }
+
+    document.getElementById('btnUp').onclick = () => setDirection(0, -1);
+    document.getElementById('btnDown').onclick = () => setDirection(0, 1);
+    document.getElementById('btnLeft').onclick = () => setDirection(-1, 0);
+    document.getElementById('btnRight').onclick = () => setDirection(1, 0);
+    document.getElementById('btnStop').onclick = () => {
+      gameState.nextDir = { x: 0, y: 0 };
+      gameState.dir = { x: 0, y: 0 };
+      speakText("暫停休息一下！");
+    };
+
+    // 鍵盤支援
+    window.addEventListener('keydown', (e) => {
+      if (['ArrowUp', 'KeyW'].includes(e.code)) setDirection(0, -1);
+      if (['ArrowDown', 'KeyS'].includes(e.code)) setDirection(0, 1);
+      if (['ArrowLeft', 'KeyA'].includes(e.code)) setDirection(-1, 0);
+      if (['ArrowRight', 'KeyD'].includes(e.code)) setDirection(1, 0);
+      if (e.code === 'Space') {
+        gameState.nextDir = { x: 0, y: 0 };
+        gameState.dir = { x: 0, y: 0 };
+      }
+    });
+
+    // 「我吃飽了」按鈕（自主進食概念核心）
+    const finishMealBtn = document.getElementById('finishMealBtn');
+    const resultModal = document.getElementById('resultModal');
+    const resultEmoji = document.getElementById('resultEmoji');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultDesc = document.getElementById('resultDesc');
+    const statDiet = document.getElementById('statDiet');
+    const statWater = document.getElementById('statWater');
+    const statMsg = document.getElementById('statMsg');
+
+    finishMealBtn.onclick = () => {
+      gameState.running = false;
+      resultModal.classList.remove('hidden');
+
+      statDiet.textContent = `🥗 吃到健康好食物：${gameState.healthyCount} 樣`;
+      statWater.textContent = `💧 喝水保養肚肚：${gameState.waterCount} 次`;
+
+      if (gameState.fullness >= 45 && gameState.fullness <= 80) {
+        // 完美剛剛好
+        soundEffects.win();
+        resultEmoji.textContent = '🏆';
+        resultTitle.textContent = '剛剛好！太棒了！';
+        resultDesc.textContent = '你知道小肚肚什麼時候吃飽，沒有餓到也沒有太撐，身體最舒服！';
+        statMsg.textContent = '🌟 榮獲「飲食小大師」金牌！';
+        speakText("太棒了！小肚肚剛剛好，獲得飲食小大師金牌！");
+      } else if (gameState.fullness < 45) {
+        // 還太餓
+        resultEmoji.textContent = '🥣';
+        resultTitle.textContent = '肚肚還咕嚕嚕叫喔！';
+        resultDesc.textContent = '小肚肚還有一點點餓，下次可以再多吃一點菜菜和米飯喔！';
+        statMsg.textContent = '🌱 再接再厲，下次再吃飽一點！';
+        speakText("小肚肚還有一點餓，下次可以多吃一點蔬菜和米飯喔！");
+      } else {
+        // 太撐
+        resultEmoji.textContent = '🐡';
+        resultTitle.textContent = '肚子稍微太圓囉！';
+        resultDesc.textContent = '吃得太脹了，下次記得在綠色剛剛好時就停下來休息喔！';
+        statMsg.textContent = '💧 多喝水休息一下！';
+        speakText("吃得有點太撐了，下次記得在綠色的時候就停下來喔！");
+      }
+    };
+
+    // 重新開始
+    function resetGame() {
+      gameState.running = true;
+      gameState.fullness = 20;
+      gameState.snake = [
+        { x: 3, y: 4 },
+        { x: 2, y: 4 },
+        { x: 1, y: 4 }
+      ];
+      gameState.dir = { x: 1, y: 0 };
+      gameState.nextDir = { x: 1, y: 0 };
+      gameState.foods = [];
+      gameState.waterCount = 0;
+      gameState.healthyCount = 0;
+      ensureFoodCount(2);
+      updateFullnessUI();
+      resultModal.classList.add('hidden');
+      lastTick = performance.now();
+      requestAnimationFrame(gameLoop);
+    }
+
+    document.getElementById('startGameBtn').onclick = () => {
+      document.getElementById('startOverlay').classList.add('hidden');
+      resizeCanvas();
+      resetGame();
+      speakText("遊戲開始！把小肚肚吃到綠色剛剛好喔！");
+    };
+
+    document.getElementById('playAgainBtn').onclick = () => {
+      resetGame();
+    };
+
+    // 語音開關切換
+    const voiceToggleBtn = document.getElementById('voiceToggleBtn');
+    const voiceLabel = document.getElementById('voiceLabel');
+    const voiceIcon = document.getElementById('voiceIcon');
+    voiceToggleBtn.onclick = () => {
+      voiceEnabled = !voiceEnabled;
+      voiceLabel.textContent = voiceEnabled ? '語音：開' : '語音：關';
+      voiceIcon.textContent = voiceEnabled ? '🔊' : '🔈';
+      if (!voiceEnabled && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+
+    // 速度切換（大幅降低移動頻率，極度友善特教學生）
+    const speedSlow = document.getElementById('speedSlow');
+    const speedNormal = document.getElementById('speedNormal');
+    speedSlow.onclick = () => {
+      gameState.speed = 800; // 超慢模式：0.8秒移動一步
+      speedSlow.className = 'px-2 py-1 rounded-xl bg-amber-500 text-white shadow-sm font-black';
+      speedNormal.className = 'px-2 py-1 rounded-xl text-slate-600 font-bold';
+    };
+    speedNormal.onclick = () => {
+      gameState.speed = 550; // 一般模式：0.55秒移動一步（依然相當舒緩）
+      speedNormal.className = 'px-2 py-1 rounded-xl bg-amber-500 text-white shadow-sm font-black';
+      speedSlow.className = 'px-2 py-1 rounded-xl text-slate-600 font-bold';
+    };
+
+    window.onload = () => {
+      resizeCanvas();
+      updateFullnessUI();
+    };
+  </script>
+</body>
+</html>

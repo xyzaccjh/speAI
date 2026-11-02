@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>能源科技系統｜第6–10週互動教材</title>
+<style>
+:root{
+  --navy:#173b6d; --blue:#50a8ff; --blue2:#eaf6ff;
+  --green:#57b56b; --green2:#edf9ef; --red:#f26d7d; --red2:#fff0f2;
+  --purple:#8b6fd6; --purple2:#f5f0ff; --yellow:#ffd76a; --ink:#203040;
+  --card:#fff; --shadow:0 8px 24px rgba(30,60,90,.12);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;background:linear-gradient(#eef8ff,#fffaf0);color:var(--ink)}
+header{background:#fff;border-bottom:4px solid #cdeaff;padding:18px 22px;position:sticky;top:0;z-index:20}
+.header-wrap{max-width:1120px;margin:auto;display:flex;gap:16px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:clamp(22px,3vw,34px);color:var(--navy)}
+.subtitle{font-size:14px;color:#5b6d82;margin-top:4px}
+.progress{min-width:220px}
+.progressbar{height:12px;background:#e8edf3;border-radius:999px;overflow:hidden}
+.progressbar>div{height:100%;width:0;background:linear-gradient(90deg,#58b7ff,#70d37b);transition:.3s}
+.progresslabel{font-size:13px;text-align:right;margin-top:4px;color:#607086}
+
+.tabs{max-width:1120px;margin:18px auto 8px;padding:0 16px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.tab{border:none;border-radius:16px;padding:12px 8px;font-weight:700;background:#fff;box-shadow:var(--shadow);cursor:pointer;color:var(--navy);font-size:15px}
+.tab.active{background:var(--navy);color:#fff;transform:translateY(-2px)}
+main{max-width:1120px;margin:auto;padding:12px 16px 50px}
+.lesson{display:none}.lesson.active{display:block}
+.hero{background:#fff;border-radius:24px;box-shadow:var(--shadow);padding:20px;margin-bottom:16px;border:3px solid #ddecff}
+.hero h2{margin:0 0 8px;color:var(--navy);font-size:28px}
+.hero p{margin:0;color:#5a6a7d}
+.task{background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:18px;margin:16px 0}
+.task h3{margin:0 0 12px;font-size:22px;display:flex;gap:10px;align-items:center}
+.num{width:36px;height:36px;border-radius:50%;display:inline-grid;place-items:center;color:white;background:var(--red)}
+.instruction{font-weight:700;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.card{border:2px solid #dfe8f0;border-radius:16px;padding:14px;text-align:center;background:#fff;cursor:pointer;transition:.18s;min-height:120px;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.card:hover{transform:translateY(-2px)}
+.card .icon{font-size:42px;line-height:1.1}.card .label{font-weight:700;margin-top:8px}
+.card.selected{border-color:#56a8ff;background:#eef8ff}
+.card.correct{border-color:#4caf60;background:#edf9ef}
+.card.wrong{border-color:#ef6a7a;background:#fff0f2}
+.feedback{margin-top:12px;font-weight:700;min-height:24px}
+.btn{border:none;border-radius:14px;padding:11px 16px;font-weight:700;cursor:pointer;background:var(--navy);color:#fff;margin:6px 6px 0 0}
+.btn.secondary{background:#e9eef4;color:#34495e}
+.btn.green{background:#4da95f}
+.btn.orange{background:#ef9b2d}
+.choice-row{display:flex;gap:10px;flex-wrap:wrap}
+.choice{padding:12px 16px;border-radius:14px;border:2px solid #d8e2ec;background:#fff;cursor:pointer;font-weight:700}
+.choice.active{background:#eaf6ff;border-color:#58aaf5}
+.sort-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.sort-item{background:#f8fbff;border:2px dashed #9fc9ef;border-radius:16px;padding:14px;text-align:center;cursor:pointer}
+.sort-item .icon{font-size:40px}.sort-item .order{font-size:20px;font-weight:800;color:#e85e72}
+.match{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.match-col{display:flex;flex-direction:column;gap:10px}
+.match-btn{border:2px solid #d8e2ec;background:white;border-radius:14px;padding:12px;text-align:left;cursor:pointer;font-weight:700}
+.match-btn.sel{border-color:#58aaf5;background:#edf7ff}
+.match-btn.done{border-color:#56ad68;background:#eef9f0}
+.binary{display:flex;gap:12px;justify-content:center;margin-top:8px}
+.binary button{font-size:28px;border:none;border-radius:50%;width:56px;height:56px;cursor:pointer}
+.ok{background:#e7f8eb}.no{background:#ffecee}
+.rule{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rule-item{padding:12px;border:2px solid #e1e6ea;border-radius:14px;background:#fff}
+input[type="text"]{width:100%;padding:12px;border-radius:12px;border:2px solid #d9e1ea;font-size:16px}
+.checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:14px}
+.check{padding:12px;background:#f6fbff;border-radius:14px;border:1px solid #d6e9f7}
+.footerbar{position:sticky;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid #d9e5ee;padding:10px}
+.footerin{max-width:1120px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.badge{padding:8px 12px;border-radius:999px;background:#eef8ff;color:#245783;font-weight:700}
+.small{font-size:13px;color:#66788a}
+@media(max-width:760px){
+  .tabs{grid-template-columns:repeat(2,1fr)}
+  .progress{display:none}
+  .sort-wrap{grid-template-columns:repeat(2,1fr)}
+  .match{grid-template-columns:1fr}
+  .rule{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-wrap">
+    <div>
+      <h1>⚡ 能源科技系統｜互動式學習教材</h1>
+      <div class="subtitle">第6～10週｜生活用電、電力傳送、家庭設備、安全用電與電池</div>
+    </div>
+    <div class="progress">
+      <div class="progressbar"><div id="pbar"></div></div>
+      <div class="progresslabel" id="plabel">完成度 0%</div>
+    </div>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-target="w6">第6週<br>生活中哪裡有電？</button>
+  <button class="tab" data-target="w7">第7週<br>電怎麼到我家？</button>
+  <button class="tab" data-target="w8">第8週<br>電力小幫手</button>
+  <button class="tab" data-target="w9">第9週<br>安全用電</button>
+  <button class="tab" data-target="w10">第10週<br>生活中的電池</button>
+</div>
+
+<main>
+<section class="lesson active" id="w6">
+  <div class="hero"><h2>第6週｜生活中哪裡有電？</h2><p>學習重點：辨識需要用電的設備，並能區分「需要用電／不需要用電」。</p></div>
+  <div class="task">
+    <h3><span class="num">1</span>圈一圈：哪些東西需要用電？</h3>
+    <div class="instruction">點選所有需要用電的物品，再按「檢查答案」。</div>
+    <div class="grid" id="w6t1"></div>
+    <button class="btn" onclick="checkMulti('w6t1',[0,2,4,6],0)">檢查答案</button><button class="btn secondary" onclick="resetCards('w6t1')">重來</button>
+    <div class="feedback" id="w6t1fb"></div>
+  </div>
+  <div class="task">
+    <h3><span class="num">2</span>分一分：需要用電／不需要用電</h3>
+    <div class="instruction">逐題選擇正確分類。</div>
+    <div id="w6binary"></div>
+  </div>
+  <div class="task">
+    <h3><span class="num">3</span>說一說：我常用的電器</h3>
+    <div class="instruction">選一個你常用的電器，說出它可以做什麼。</div>
+    <div class="choice-row" id="w6choices"></div>
+    <input id="w6text" type="text" placeholder="例如：電風扇可以幫我吹風。"/>
+    <button class="btn green" onclick="saveText('w6text',2)">完成這一題</button>
+    <div class="feedback" id="w6textfb"></div>
+  </div>
+</section>
+
+<section class="lesson" id="w7">
+  <div class="hero"><h2>第7週｜電是怎麼到我家的？</h2><p>學習重點：理解「發電廠 → 電線／電塔 → 我們家 → 電器」的基本流程。</p></div>
+  <div class="task">
+    <h3><span class="num">1</span>排一排：電的旅行順序</h3>
+    <div class="instruction">依正確順序點選四張卡片。點錯可以按「重新排序」。</div>
+    <div class="sort-wrap" id="sortArea"></div>
+    <button class="btn" onclick="checkSort()">檢查順序</button><button class="btn secondary" onclick="resetSort()">重新排序</button>
+    <div class="feedback" id="sortfb"></div>
+  </div>
+  <div class="task">
+    <h3><span class="num">2</span>填一填：電的旅行路線</h3>
+    <div class="instruction">依序選出正確名稱。</div>
+    <div class="choice-row" id="routeChoices"></div>
+    <div class="feedback" id="routefb"></div>
+  </div>
+  <div class="task">
+    <h3><span class="num">3</span>想一想：電到了家裡，可以做什麼？</h3>
+    <div class="grid">
+      <div class="card" onclick="markSingle(this,true,5)"><div class="icon">💡</div><div class="label">讓燈亮</div></div>
+      <div class="card" onclick="markSingle(this,true,5)"><div class="icon">❄️</div><div class="label">讓冷氣運轉</div></div>
+      <div class="card" onclick="markSingle(this,false,5)"><div class="icon">📚</div><div class="label">讓書本自己翻頁</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="lesson" id="w8">
+  <div class="hero"><h2>第8週｜家裡的電力小幫手</h2><p>學習重點：認識插座、電表、無熔絲開關及其用途。</p></div>
+  <div class="task">
+    <h3><span class="num">1</span>認一認：這是什麼設備？</h3>
+    <div class="grid">
+      <div class="card" onclick="markSingle(this,true,6)"><div class="icon">🔌</div><div class="label">插座</div></div>
+      <div class="card" onclick="markSingle(this,true,6)"><div class="icon">🧮</div><div class="label">電表</div></div>
+      <div class="card" onclick="markSingle(this,true,6)"><div class="icon">⏹️</div><div class="label">無熔絲開關</div></div>
+    </div>
+  </div>
+  <div class="task">
+    <h3><span class="num">2</span>連一連：設備和用途</h3>
+    <div class="match">
+      <div class="match-col" id="matchL"></div>
+      <div class="match-col" id="matchR"></div>
+    </div>
+    <div class="feedback" id="matchfb"></div>
+  </div>
+  <div class="task">
+    <h3><span class="num">3</span>找一找：我在哪裡看過？</h3>
+    <div class="instruction">請勾選你看過這些設備的地方。</div>
+    <div class="checklist">
+      <label class="check"><input type="checkbox" onchange="completeOnce(this,8)"> 🏠 家裡</label>
+      <label class="check"><input type="checkbox" onchange="completeOnce(this,8)"> 🏫 學校</label>
+      <label class="check"><input type="checkbox" onchange="completeOnce(this,8)"> 📍 其他地方</label>
+    </div>
+  </div>
+</section>
+
+<section class="lesson" id="w9">
+  <div class="hero"><h2>第9週｜安全用電我會做</h2><p>學習重點：辨識安全與危險的用電行為，記住簡單安全口訣。</p></div>
+  <div class="task">
+    <h3><span class="num">1</span>看圖選一選：這樣做可以嗎？</h3>
+    <div id="safetyQ"></div>
+  </div>
+  <div class="task">
+    <h3><span class="num">2</span>我會這樣做</h3>
+    <div class="rule">
+      <div class="rule-item">👐 手乾了再使用電器。</div>
+      <div class="rule-item">🚫 不亂插、不亂碰插座。</div>
+      <div class="rule-item">📣 發現電線破掉，要告訴大人。</div>
+      <div class="rule-item">🔌 不要一個插座接太多電器。</div>
+    </div>
+    <button class="btn green" onclick="completeTask(11,'rulesfb')">我都記住了</button>
+    <div class="feedback" id="rulesfb"></div>
+  </div>
+  <div class="task">
+    <h3><span class="num">3</span>安全口訣</h3>
+    <div class="instruction">點選正確詞語完成句子。</div>
+    <div class="grid">
+      <div class="card" onclick="fillRule(this,'手乾乾，不碰電。',12)"><div class="icon">🖐️</div><div class="label">手乾乾，不碰電。</div></div>
+      <div class="card" onclick="fillRule(this,'不亂拉電線。',12)"><div class="icon">🔌</div><div class="label">不亂拉電線。</div></div>
+      <div class="card" onclick="fillRule(this,'不亂插很多電器。',12)"><div class="icon">⚠️</div><div class="label">不亂插很多電器。</div></div>
+    </div>
+    <div class="feedback" id="rulefillfb"></div>
+  </div>
+</section>
+
+<section class="lesson" id="w10">
+  <div class="hero"><h2>第10週｜生活中的電池</h2><p>學習重點：認識常見電池、辨識正負極，並練習安裝電池的正確步驟。</p></div>
+  <div class="task">
+    <h3><span class="num">1</span>認識電池</h3>
+    <div class="grid">
+      <div class="card" onclick="markSingle(this,true,13)"><div class="icon">🔋</div><div class="label">乾電池</div></div>
+      <div class="card" onclick="markSingle(this,true,13)"><div class="icon">🔋</div><div class="label">鹼性電池</div></div>
+      <div class="card" onclick="markSingle(this,true,13)"><div class="icon">🪙</div><div class="label">鈕扣電池</div></div>
+      <div class="card" onclick="markSingle(this,true,13)"><div class="icon">🔋</div><div class="label">充電電池</div></div>
+    </div>
+  </div>
+  <div class="task">
+    <h3><span class="num">2</span>找一找：哪裡是正極（＋）和負極（－）？</h3>
+    <div class="choice-row">
+      <button class="choice" onclick="polarity(this,'+',14)">＋ 正極</button>
+      <button class="choice" onclick="polarity(this,'-',14)">－ 負極</button>
+    </div>
+    <div class="feedback" id="polarityfb">先點一個極性看看。</div>
+  </div>
+  <div class="task">
+    <h3><span class="num">3</span>我會裝電池</h3>
+    <div class="sort-wrap" id="batterySort"></div>
+    <button class="btn" onclick="checkBatterySort()">檢查順序</button><button class="btn secondary" onclick="resetBatterySort()">重新排序</button>
+    <div class="feedback" id="batteryfb"></div>
+  </div>
+  <div class="task">
+    <h3><span class="num">4</span>哪些東西需要電池？</h3>
+    <div class="grid" id="batteryNeed"></div>
+    <button class="btn" onclick="checkMulti('batteryNeed',[0,2],15)">檢查答案</button>
+    <div class="feedback" id="batteryNeedfb"></div>
+  </div>
+</section>
+</main>
+
+<div class="footerbar">
+  <div class="footerin"><span class="badge">👩‍🏫 教師可逐週使用，也可作單元總複習</span><span class="small">點選上方週次切換內容</span></div>
+</div>
+
+<script>
+let completed=new Set();
+function updateProgress(){
+  const total=16;
+  const pct=Math.round(completed.size/total*100);
+  document.getElementById('pbar').style.width=pct+'%';
+  document.getElementById('plabel').textContent='完成度 '+pct+'%';
+}
+function completeTask(id, fb){
+  completed.add(id); updateProgress();
+  if(fb) document.getElementById(fb).textContent='✅ 完成！';
+}
+document.querySelectorAll('.tab').forEach(b=>{
+  b.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.lesson').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); document.getElementById(b.dataset.target).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+});
+
+const w6items=[
+  ['🌀','電風扇',true],['🪑','椅子',false],['💡','電燈',true],
+  ['🪵','桌子',false],['📺','電視',true],['🥤','水壺',false],
+  ['❄️','冷氣',true],['✏️','鉛筆',false]
+];
+function buildCards(id,items){
+ const el=document.getElementById(id);
+ items.forEach((it,i)=>{
+   const d=document.createElement('div'); d.className='card'; d.dataset.index=i;
+   d.innerHTML=`<div class="icon">${it[0]}</div><div class="label">${it[1]}</div>`;
+   d.onclick=()=>d.classList.toggle('selected'); el.appendChild(d);
+ });
+}
+buildCards('w6t1',w6items);
+function resetCards(id){document.querySelectorAll('#'+id+' .card').forEach(c=>c.className='card')}
+function checkMulti(id,answers,taskId){
+ const cards=[...document.querySelectorAll('#'+id+' .card')];
+ let ok=true;
+ cards.forEach((c,i)=>{let sel=c.classList.contains('selected'), should=answers.includes(i); c.classList.remove('correct','wrong'); if(sel===should){if(sel)c.classList.add('correct')} else {c.classList.add('wrong');ok=false}});
+ const fb=document.getElementById(id+'fb'); if(fb) fb.textContent=ok?'✅ 全部答對！':'再看看紅色框的地方。';
+ if(ok) completeTask(taskId);
+}
+
+const binItems=[['💻','電腦',true],['📚','書本',false],['🧊','冰箱',true],['⚽','球',false],['🌀','電風扇',true],['🥤','杯子',false]];
+const wb=document.getElementById('w6binary');
+binItems.forEach((it,idx)=>{
+ let row=document.createElement('div'); row.className='task'; row.style.boxShadow='none'; row.style.border='1px solid #e4eaf0';
+ row.innerHTML=`<b>${it[0]} ${it[1]}</b><div class="binary"><button class="ok">需要用電</button><button class="no">不需要用電</button></div><div class="feedback"></div>`;
+ row.querySelector('.ok').onclick=()=>judgeBin(row,true,it[2],1);
+ row.querySelector('.no').onclick=()=>judgeBin(row,false,it[2],1);
+ wb.appendChild(row);
+});
+let binCorrect=0;
+function judgeBin(row,ans,correct,id){
+ const fb=row.querySelector('.feedback');
+ if(ans===correct){fb.textContent='✅ 正確'; if(!row.dataset.done){row.dataset.done='1';binCorrect++;} if(binCorrect===binItems.length)completeTask(id)}
+ else fb.textContent='❌ 再想一想';
+}
+['電風扇','電視','冷氣','電腦'].forEach(x=>{
+ let b=document.createElement('button');b.className='choice';b.textContent=x;b.onclick=()=>{document.getElementById('w6text').value=x+'可以';};document.getElementById('w6choices').appendChild(b);
+});
+function saveText(id,taskId){let v=document.getElementById(id).value.trim();let fb=document.getElementById(id+'fb');if(v.length>=3){fb.textContent='✅ 很好，你有完成表達！';completeTask(taskId)}else fb.textContent='請再說得完整一點。'}
+
+const sortData=[['🏭','發電廠'],['🗼','電線／電塔'],['🏠','我們家'],['💡','電器']];
+let sortOrder=[];
+function buildSort(){
+ const a=document.getElementById('sortArea');a.innerHTML='';
+ sortData.forEach((it,i)=>{let d=document.createElement('div');d.className='sort-item';d.dataset.idx=i;d.innerHTML=`<div class="order"></div><div class="icon">${it[0]}</div><b>${it[1]}</b>`;d.onclick=()=>{if(sortOrder.includes(i))return;sortOrder.push(i);d.querySelector('.order').textContent=sortOrder.length;};a.appendChild(d)})
+}
+function resetSort(){sortOrder=[];buildSort();document.getElementById('sortfb').textContent=''}
+function checkSort(){let ok=sortOrder.join(',')==='0,1,2,3';document.getElementById('sortfb').textContent=ok?'✅ 順序正確！':'再想想：電先在哪裡產生？';if(ok)completeTask(3)}
+buildSort();
+['發電廠','電線／電塔','我們家','電器'].forEach((x,i)=>{let b=document.createElement('button');b.className='choice';b.textContent=x;b.onclick=()=>{if(!b.classList.contains('active'))b.classList.add('active'); if(document.querySelectorAll('#routeChoices .active').length===4){document.getElementById('routefb').textContent='✅ 你找到了四個重要位置！';completeTask(4)}};document.getElementById('routeChoices').appendChild(b)});
+function markSingle(el,correct,id){el.classList.remove('correct','wrong');el.classList.add(correct?'correct':'wrong');if(correct)completeTask(id)}
+
+const pairs={插座:'讓電器取得電力。',電表:'記錄家裡用了多少電。',無熔絲開關:'用電發生問題時，會切斷電力。'};
+let leftSel=null,rightSel=null,matchCount=0;
+Object.keys(pairs).forEach(k=>{let b=document.createElement('button');b.className='match-btn';b.textContent=k;b.onclick=()=>selectMatch('L',b,k);document.getElementById('matchL').appendChild(b)});
+Object.values(pairs).sort(()=>Math.random()-.5).forEach(v=>{let b=document.createElement('button');b.className='match-btn';b.textContent=v;b.onclick=()=>selectMatch('R',b,v);document.getElementById('matchR').appendChild(b)});
+function selectMatch(side,btn,val){
+ if(btn.classList.contains('done'))return;
+ if(side==='L'){document.querySelectorAll('#matchL .sel').forEach(x=>x.classList.remove('sel'));leftSel=[btn,val];btn.classList.add('sel')}
+ else {document.querySelectorAll('#matchR .sel').forEach(x=>x.classList.remove('sel'));rightSel=[btn,val];btn.classList.add('sel')}
+ if(leftSel&&rightSel){
+   if(pairs[leftSel[1]]===rightSel[1]){leftSel[0].className='match-btn done';rightSel[0].className='match-btn done';matchCount++;document.getElementById('matchfb').textContent='✅ 配對正確';if(matchCount===3)completeTask(7)}
+   else document.getElementById('matchfb').textContent='❌ 這兩個不是一組，再試一次';
+   leftSel=null;rightSel=null;
+ }
+}
+function completeOnce(cb,id){if(cb.checked)completeTask(id)}
+
+const safety=[['👐','手乾了再碰插頭',true],['💧','濕手碰插座',false],['🧵','拉電線拔插頭',false],['🤏','用手拿插頭拔除',true],['🔌','一個插座接很多電器',false],['⚠️','電線破掉還繼續使用',false]];
+const sq=document.getElementById('safetyQ');let safeDone=0;
+safety.forEach((q,i)=>{let d=document.createElement('div');d.className='task';d.style.boxShadow='none';d.style.border='1px solid #eee';d.innerHTML=`<b>${q[0]} ${q[1]}</b><div class="binary"><button class="ok">⭕ 可以</button><button class="no">✖ 不可以</button></div><div class="feedback"></div>`;d.querySelector('.ok').onclick=()=>safetyAns(d,true,q[2]);d.querySelector('.no').onclick=()=>safetyAns(d,false,q[2]);sq.appendChild(d)});
+function safetyAns(d,a,c){let f=d.querySelector('.feedback');if(a===c){f.textContent='✅ 正確';if(!d.dataset.done){d.dataset.done=1;safeDone++;}if(safeDone===safety.length)completeTask(10)}else f.textContent='❌ 再想想，這樣安全嗎？'}
+function fillRule(el,text,id){el.classList.add('correct');document.getElementById('rulefillfb').textContent='✅ '+text;completeTask(id)}
+
+function polarity(btn,val,id){document.querySelectorAll('#w10 .choice').forEach(x=>x.classList.remove('active'));btn.classList.add('active');document.getElementById('polarityfb').textContent=val==='+'?'✅ 正極通常標示「＋」。':'✅ 負極通常標示「－」。';completeTask(id)}
+
+const batt=[['📦','打開電池盒'],['🔋','放入電池（注意＋－）'],['📦','關上電池盒'],['🎛️','按一下看看能不能使用']];
+let battOrder=[];
+function buildBatt(){const a=document.getElementById('batterySort');a.innerHTML='';batt.forEach((it,i)=>{let d=document.createElement('div');d.className='sort-item';d.innerHTML=`<div class="order"></div><div class="icon">${it[0]}</div><b>${it[1]}</b>`;d.onclick=()=>{if(battOrder.includes(i))return;battOrder.push(i);d.querySelector('.order').textContent=battOrder.length};a.appendChild(d)})}
+function resetBatterySort(){battOrder=[];buildBatt();document.getElementById('batteryfb').textContent=''}
+function checkBatterySort(){let ok=battOrder.join(',')==='0,1,2,3';document.getElementById('batteryfb').textContent=ok?'✅ 安裝順序正確！':'再想想：第一步應該先做什麼？';if(ok)completeTask(15)}
+buildBatt();
+
+const need=[['🎛️','遙控器'],['🧱','積木'],['🔦','手電筒'],['📖','課本']];
+buildCards('batteryNeed',need);
+</script>
+</body>
+</html>

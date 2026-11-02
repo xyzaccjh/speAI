@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>健康教育｜吃得剛剛好</title>
+<style>
+:root{
+  --blue:#55A9F7;--blue2:#EAF6FF;--green:#60C788;--green2:#ECFAF1;
+  --orange:#F6A646;--orange2:#FFF4E5;--pink:#F47B9B;--pink2:#FFF0F5;
+  --purple:#9272E9;--purple2:#F4F0FF;--ink:#263442;--muted:#6E7E8D;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;background:linear-gradient(#F3FAFF,#FFF);color:var(--ink)}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+aside{background:#EAF6FF;border-right:2px solid #CAE4F5;padding:16px;position:sticky;top:0;height:100vh}
+.brand{background:white;border-radius:20px;padding:14px;font-weight:900;color:#2369A4;font-size:20px;box-shadow:0 5px 15px #DCEBF6;margin-bottom:14px}
+.week{width:100%;border:0;border-radius:18px;background:white;padding:13px;margin:6px 0;text-align:left;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 4px 12px #DCE8F1}
+.week.active{outline:4px solid #A8D7FF}
+.week small{display:block;font-weight:700;color:#668096;margin-top:3px}
+main{padding:22px;max-width:1250px;width:100%;margin:auto}
+.hero{background:linear-gradient(120deg,#FFE9BD,#FFF9E9 60%,#E9F7FF);border-radius:28px;padding:22px 26px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.hero h1{margin:0;font-size:40px}.hero p{font-size:18px;color:#5B6670;margin:8px 0 0}.hero .icon{font-size:72px}
+.badge{display:inline-block;background:#FF7C98;color:white;padding:7px 13px;border-radius:999px;font-weight:900;margin-bottom:7px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.tab{border:0;border-radius:14px;padding:11px 15px;background:#E9F2FA;color:#31536D;font-size:16px;font-weight:900;cursor:pointer}
+.tab.active{background:var(--blue);color:white}
+.section{background:white;border:1px solid #E8EEF4;border-radius:22px;padding:18px;margin-bottom:16px;box-shadow:0 5px 16px #E7EEF4}
+.section h2{margin:0 0 12px;font-size:25px}
+.goalgrid,.cards,.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.goal,.card{padding:14px;border-radius:16px;background:#F8FBFE;font-weight:800}
+.card .emo{font-size:46px}
+.choice{display:grid;gap:9px;margin-top:10px}
+.choice button{border:2px solid #DCE6EE;background:white;border-radius:13px;padding:11px;font-size:17px;font-weight:900;text-align:left;cursor:pointer}
+.choice button:hover{background:#F7FBFF}
+.choice button.ok{background:#EAF8EF;border-color:#4DB87B;color:#147743}
+.choice button.no{background:#FFF0F0;border-color:#E37070;color:#B54141}
+.feedback{font-weight:900;margin-top:8px;min-height:24px}
+.sum{padding:16px;border-radius:18px;text-align:center;font-weight:900}.red{background:#FFF0F0}.green{background:#EAF8EF}.yellow{background:#FFF6DA}
+.progressbox{background:#E8EEF4;height:15px;border-radius:999px;overflow:hidden}.bar{height:100%;background:linear-gradient(90deg,#54A9F7,#63C88A);width:0%;transition:.3s}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:13px;padding:11px 15px;font-weight:900;cursor:pointer}.primary{background:#4E9EEE;color:white}.secondary{background:#EDF3F7;color:#31516C}
+.hidden{display:none}
+.dragzone{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.bucket{min-height:140px;border:3px dashed #C9DDEA;border-radius:16px;padding:10px;background:#FAFCFE}
+.bucket h3{margin-top:0}
+.dragitems{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.dragitem{padding:10px 13px;border-radius:12px;background:#FFF;border:2px solid #D7E3EC;cursor:grab;font-weight:900}
+.dragitem.done{opacity:.45}
+@media(max-width:850px){.app{grid-template-columns:1fr}aside{position:static;height:auto;display:flex;gap:8px;overflow:auto}.brand{display:none}.week{min-width:190px;margin:0}.goalgrid,.cards,.summary,.dragzone{grid-template-columns:1fr}.hero h1{font-size:31px}.hero .icon{font-size:50px}main{padding:12px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <div class="brand">🍽️ 健康教育<br>吃得剛剛好</div>
+  <button class="week active" data-week="6">第6週<small>我吃了多少？</small></button>
+  <button class="week" data-week="7">第7週<small>肚子告訴我的事</small></button>
+  <button class="week" data-week="8">第8週<small>這一餐剛剛好嗎？</small></button>
+  <button class="week" data-week="9">第9週<small>零食怎麼吃？</small></button>
+  <button class="week" data-week="10">第10週<small>單元總整理</small></button>
+</aside>
+
+<main>
+  <div class="hero">
+    <div><span class="badge" id="badge">第6週</span><h1 id="title">我吃了多少？</h1><p id="desc">認識太多、剛剛好、太少。</p></div>
+    <div class="icon" id="icon">🍚</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="goal">🎯 學習目標</button>
+    <button class="tab" data-tab="lesson">▶ 課程內容</button>
+    <button class="tab" data-tab="practice">✏ 互動練習</button>
+    <button class="tab" data-tab="life">🏠 生活應用</button>
+    <button class="tab" data-tab="summary">⭐ 小結</button>
+  </div>
+  <div id="content"></div>
+
+  <div class="section">
+    <h2>📈 我的學習進度</h2>
+    <div id="score">已完成 0 題</div>
+    <div class="progressbox"><div class="bar" id="bar"></div></div>
+    <div class="toolbar" style="margin-top:12px"><button class="btn secondary" onclick="resetAll()">重新作答</button></div>
+  </div>
+</main>
+</div>
+
+<script>
+const weeks={
+6:{title:"我吃了多少？",desc:"認識「太多、剛剛好、太少」，學會看食物份量。",icon:"🍚",
+goals:["能分辨太多、太少與剛剛好的份量。","能比較兩份食物的多與少。","能用簡單語句說出自己的判斷。"],
+lesson:`<div class="section"><h2>三種份量</h2><div class="summary">
+<div class="sum red">😣<br>太多<br><small>肚子很撐、不舒服</small></div>
+<div class="sum green">😊<br>剛剛好<br><small>舒服、有精神</small></div>
+<div class="sum yellow">😟<br>太少<br><small>還很餓、沒力氣</small></div></div></div>`,
+practice:[
+["6a","🍚 一大碗飯，比較接近？",["太多","剛剛好","太少"],"太多"],
+["6b","🍚 一碗適量的飯，比較接近？",["太多","剛剛好","太少"],"剛剛好"],
+["6c","🍚 碗裡只有一點飯，比較接近？",["太多","剛剛好","太少"],"太少"]],
+life:[["6d","午餐拿到很大一盤飯菜，你可以怎麼做？",["全部吃完","先吃適量，再感覺肚子","再多拿一盤"],"先吃適量，再感覺肚子"]],
+summary:["我會分辨份量","太多／剛剛好／太少","吃飯前先看看份量。"]},
+
+7:{title:"肚子告訴我的事",desc:"把吃的份量和身體感覺連起來。",icon:"🫃",
+goals:["能辨識吃完後常見的身體感覺。","能把飲食份量與身體感覺配對。","能依身體感覺選擇下一步行動。"],
+lesson:`<div class="section"><h2>身體感覺小圖鑑</h2><div class="cards">
+<div class="card"><div class="emo">😣</div><b>肚子很撐、不舒服</b><p>常出現在吃太多之後。</p></div>
+<div class="card"><div class="emo">😊</div><b>很舒服、有精神</b><p>常出現在吃得剛剛好之後。</p></div>
+<div class="card"><div class="emo">😟</div><b>還很餓、沒力氣</b><p>常出現在吃太少之後。</p></div></div></div>`,
+practice:[
+["7a","吃太多後，最接近哪種感覺？",["肚子很撐、不舒服","很舒服、有精神","還很餓、沒力氣"],"肚子很撐、不舒服"],
+["7b","吃得剛剛好後，最接近哪種感覺？",["肚子很撐、不舒服","很舒服、有精神","還很餓、沒力氣"],"很舒服、有精神"],
+["7c","吃太少後，最接近哪種感覺？",["肚子很撐、不舒服","很舒服、有精神","還很餓、沒力氣"],"還很餓、沒力氣"],
+["7d","我肚子很撐，接下來怎麼做？",["先休息，不再繼續吃","再吃很多","再喝大杯含糖飲料"],"先休息，不再繼續吃"]],
+life:[
+["7e","放學後還很餓、沒力氣，可以怎麼做？",["吃一份適量點心","什麼都不吃","一次吃很多零食"],"吃一份適量點心"],
+["7f","午餐後覺得舒服、有精神，接下來？",["繼續一直吃","停止進食，記住這種感覺","再拿一份"],"停止進食，記住這種感覺"]],
+summary:["我會聽身體說話","撐＝太多；舒服＝剛剛好；還餓＝太少","吃完後先停一下，感覺自己的身體。"]},
+
+8:{title:"這一餐剛剛好嗎？",desc:"比較早餐、午餐、晚餐與點心，做較合適的選擇。",icon:"🍱",
+goals:["能比較兩份餐點的份量。","能在生活情境中選出較合適的餐點。","能說出簡單的選擇理由。"],
+lesson:`<div class="section"><h2>一餐可以看三件事</h2><div class="cards">
+<div class="card"><div class="emo">🍚</div><b>份量</b><p>不是越多越好，也不是越少越好。</p></div>
+<div class="card"><div class="emo">🥦</div><b>種類</b><p>可以有主食、蛋白質和蔬菜。</p></div>
+<div class="card"><div class="emo">🙂</div><b>身體感覺</b><p>吃完舒服、有精神，是重要線索。</p></div></div></div>`,
+practice:[
+["8a","早餐哪一份較合適？",["只有一片吐司","吐司＋蛋＋牛奶"],"吐司＋蛋＋牛奶"],
+["8b","午餐哪一份較合適？",["少量飯＋少量肉","飯＋肉／魚＋蔬菜"],"飯＋肉／魚＋蔬菜"],
+["8c","點心哪一份較合適？",["一大盤餅乾","少量水果或適量點心"],"少量水果或適量點心"]],
+life:[
+["8d","放學後有點餓，你會選？",["香蕉＋鮮奶","洋芋片＋可樂"],"香蕉＋鮮奶"],
+["8e","中午要吃飯，你會選？",["飯、肉和蔬菜","蛋糕、甜甜圈和杯子蛋糕"],"飯、肉和蔬菜"]],
+summary:["我會選一餐","看份量、種類，也看身體感覺","選擇不是只看喜歡吃什麼。"]},
+
+9:{title:"零食怎麼吃？",desc:"零食可以吃，重點是份量與選擇。",icon:"🍪",
+goals:["能辨識一次吃很多和適量的差別。","能在兩種零食份量中選較合適的方式。","能在生活情境中選較健康的點心或飲料。"],
+lesson:`<div class="section"><h2>零食三個小提醒</h2><div class="cards">
+<div class="card"><div class="emo">✋</div><b>先拿適量</b><p>不要整包直接一直吃。</p></div>
+<div class="card"><div class="emo">💧</div><b>口渴先喝水</b><p>白開水適合日常補充水分。</p></div>
+<div class="card"><div class="emo">🍌</div><b>先想一想</b><p>真的餓時，也可以選水果或鮮奶。</p></div></div></div>`,
+practice:[
+["9a","餅乾怎麼吃較適量？",["一次整包吃完","先拿少量來吃"],"先拿少量來吃"],
+["9b","洋芋片怎麼吃較適量？",["整包吃完","拿一小碗"],"拿一小碗"],
+["9c","巧克力怎麼吃較適量？",["一次吃很多塊","吃少量"],"吃少量"],
+["9d","飲料怎麼選較適合？",["大杯含糖飲料","白開水或少量飲料"],"白開水或少量飲料"]],
+life:[
+["9e","放學後有點餓，你會選？",["香蕉＋鮮奶","洋芋片＋可樂"],"香蕉＋鮮奶"],
+["9f","看電視想吃點心，你會選？",["少量餅乾","一整包零食"],"少量餅乾"],
+["9g","口渴了，你會選？",["白開水","大杯含糖飲料"],"白開水"]],
+summary:["我會聰明吃零食","適量、先想一下、口渴先喝水","零食可以吃，但不要一次吃太多。"]},
+
+10:{title:"單元總整理：吃得剛剛好",desc:"把份量、身體感覺、餐點與零食選擇整合起來。",icon:"👑",
+goals:["能分辨太多、剛剛好與太少。","能依身體感覺判斷飲食份量。","能在餐點與零食情境中做較合適的選擇。"],
+lesson:`<div class="section"><h2>這個單元，我學了四件事</h2><div class="cards">
+<div class="card"><div class="emo">🍚</div><b>看份量</b><p>太多、剛剛好、太少。</p></div>
+<div class="card"><div class="emo">🙂</div><b>感覺身體</b><p>撐、舒服、還餓。</p></div>
+<div class="card"><div class="emo">🍱</div><b>選餐點</b><p>看份量、種類和感覺。</p></div>
+<div class="card"><div class="emo">🍪</div><b>選零食</b><p>適量，不一次吃太多。</p></div></div></div>`,
+practice:[
+["10a","大份漢堡、薯條、飲料一次吃完，較接近？",["太多","剛剛好","太少"],"太多"],
+["10b","適量飯、肉和蔬菜，吃完舒服，較接近？",["太多","剛剛好","太少"],"剛剛好"],
+["10c","只有一小口飯，吃完還很餓，較接近？",["太多","剛剛好","太少"],"太少"],
+["10d","點心怎麼選較好？",["少量餅乾","一大包零食"],"少量餅乾"],
+["10e","口渴時怎麼選？",["白開水","大杯含糖飲料"],"白開水"]],
+life:[
+["10f","午餐後覺得舒服、有精神，這代表？",["太多","剛剛好","太少"],"剛剛好"],
+["10g","吃完零食後肚子很撐，下次怎麼做？",["少拿一點","拿更多","一樣多"],"少拿一點"]],
+summary:["我會分辨份量","我會聽身體的感覺","我會選較適合的餐點與點心"]}};
+
+let currentWeek=6,currentTab="goal",done=new Set(),total=0;
+
+function qBlock(q){
+ const [id,prompt,ops,ans]=q;
+ return `<div class="section question" data-id="${id}" data-answer="${ans}"><h2>${prompt}</h2><div class="choice">${ops.map(o=>`<button onclick="answerQ(this)">${o}</button>`).join("")}</div><div class="feedback"></div></div>`;
+}
+function render(){
+ const w=weeks[currentWeek];
+ badge.textContent=`第${currentWeek}週`;title.textContent=w.title;desc.textContent=w.desc;icon.textContent=w.icon;
+ document.querySelectorAll(".week").forEach(b=>b.classList.toggle("active",+b.dataset.week===currentWeek));
+ document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===currentTab));
+ let html="";
+ if(currentTab==="goal") html=`<div class="section"><h2>🎯 學習目標</h2><div class="goalgrid">${w.goals.map((g,i)=>`<div class="goal">${i+1}. ${g}</div>`).join("")}</div></div>`;
+ if(currentTab==="lesson") html=w.lesson;
+ if(currentTab==="practice") html=w.practice.map(qBlock).join("");
+ if(currentTab==="life") html=w.life.map(qBlock).join("");
+ if(currentTab==="summary") html=`<div class="section"><h2>⭐ 小結</h2><div class="cards">${w.summary.map((s,i)=>`<div class="card"><div class="emo">${["✅","🧠","🌟"][i]}</div><b>${s}</b></div>`).join("")}</div></div>`;
+ content.innerHTML=html;
+ calcTotal();
+}
+function answerQ(btn){
+ const box=btn.closest(".question"),ans=box.dataset.answer;
+ box.querySelectorAll("button").forEach(b=>b.disabled=true);
+ const fb=box.querySelector(".feedback");
+ if(btn.textContent===ans){btn.classList.add("ok");fb.textContent="答對了！👍";}
+ else{btn.classList.add("no");fb.textContent=`再想一想。正確答案是：${ans}`;box.querySelectorAll("button").forEach(b=>{if(b.textContent===ans)b.classList.add("ok")})}
+ done.add(box.dataset.id);updateProgress();
+}
+function calcTotal(){
+ total=[...document.querySelectorAll(".question")].length;
+ updateProgress();
+}
+function updateProgress(){
+ const visible=[...document.querySelectorAll(".question")].map(x=>x.dataset.id);
+ const completed=visible.filter(id=>done.has(id)).length;
+ score.textContent=`本頁已完成 ${completed} / ${total} 題`;
+ bar.style.width=total?`${completed/total*100}%`:"0%";
+}
+function resetAll(){done.clear();render();}
+document.querySelectorAll(".week").forEach(b=>b.onclick=()=>{currentWeek=+b.dataset.week;currentTab="goal";render()});
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{currentTab=b.dataset.tab;render()});
+render();
+</script>
+</body>
+</html>
